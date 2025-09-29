@@ -26,6 +26,8 @@ import ModeratorPending from "./pages/ModeratorPending";
 import ProPendingStatus from "./pages/ProPendingStatus";
 import TrainerRegistration from "./pages/TrainerRegistration";
 import ParentRegistration from "./pages/ParentRegistration";
+import TrainerAvailability from "./pages/TrainerAvailability";
+import SessionDetail from "./pages/SessionDetail";
 import Leaderboards from "./pages/Leaderboards";
 
 const queryClient = new QueryClient();
@@ -51,7 +53,9 @@ const App = () => (
           <Route path="/parent-registration" element={<ParentRegistration />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
           <Route path="/trainer-registration" element={<TrainerRegistration />} />
+          <Route path="/trainer-availability" element={<TrainerAvailability />} />
           <Route path="/trainer-selection" element={<TrainerSelection />} />
+          <Route path="/sessions/:id" element={<SessionDetail />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
           <Route path="/moderator-registration" element={<ModeratorRegistration />} />
