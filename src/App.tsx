@@ -39,6 +39,8 @@ import ContractModeration from "./pages/ContractModeration";
 import ReviewModeration from "./pages/ReviewModeration";
 import UserRoleManagement from "./pages/UserRoleManagement";
 import GameManagement from "./pages/GameManagement";
+import TrainerApprovals from "./pages/TrainerApprovals";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +86,8 @@ const App = () => (
           <Route path="/review-moderation" element={<ReviewModeration />} />
           <Route path="/user-management" element={<UserRoleManagement />} />
           <Route path="/game-management" element={<GameManagement />} />
+          <Route path="/trainer-approvals" element={<TrainerApprovals />} />
+          <Route path="/analytics" element={<Analytics />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
