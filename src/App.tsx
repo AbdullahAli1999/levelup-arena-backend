@@ -16,6 +16,7 @@ import TrainerDashboard from "./pages/TrainerDashboard";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClubOffers from "./pages/ClubOffers";
+import Login from "./components/Login";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/player-registration" element={<PlayerRegistration />} />
           <Route path="/game-selection" element={<GameSelection />} />
           <Route path="/player-dashboard" element={<PlayerDashboard />} />

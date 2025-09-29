@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Gamepad2, Users, Trophy, GraduationCap } from "lucide-react";
+import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+
   return (
     <header className="bg-background/95 backdrop-blur-md border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
@@ -41,16 +44,31 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-3">
-            <Link to="/player-dashboard">
-              <Button variant="ghost" size="sm">
-                Demo Dashboard
-              </Button>
-            </Link>
-            <Link to="/player-registration">
-              <Button variant="hero" size="sm">
-                Join Academy
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <span className="text-sm text-muted-foreground">
+                  Welcome, {user?.firstName}
+                </span>
+                <Button variant="outline" size="sm" onClick={logout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+                <Link to="/player-registration">
+                  <Button variant="hero" size="sm">
+                    Join Academy
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

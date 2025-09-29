@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,8 +8,76 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Gamepad2, UserPlus, ArrowRight, Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useApiMutation } from "@/hooks/useApiQuery";
+import api from "@/lib/api";
+import { PlayerRegisterRequest } from "@/types/api";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PlayerRegistration = () => {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    gameExperience: "",
+    parentalConsent: false
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
+
+  const { mutate: registerPlayer, loading } = useApiMutation(
+    (data: PlayerRegisterRequest) => api.registerPlayer(data),
+    {
+      onSuccess: (data) => {
+        navigate('/game-selection');
+      },
+      onError: (error) => {
+        console.error('Registration failed:', error);
+      }
+    }
+  );
+
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const newErrors: Record<string, string> = {};
+    
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "كلمات المرور غير متطابقة";
+    }
+    
+    if (!formData.parentalConsent) {
+      newErrors.parentalConsent = "يجب الحصول على موافقة ولي الأمر";
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    try {
+      await registerPlayer({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName
+      });
+    } catch (error) {
+      // Error handling is done in the mutation hook
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

@@ -1,9 +1,13 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Gamepad2, Users, Trophy, Star, ArrowRight, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import api from "@/lib/api";
+import { GameDTO } from "@/types/api";
 
 const games = [
   {
