@@ -29,6 +29,11 @@ import ParentRegistration from "./pages/ParentRegistration";
 import TrainerAvailability from "./pages/TrainerAvailability";
 import SessionDetail from "./pages/SessionDetail";
 import Leaderboards from "./pages/Leaderboards";
+import AddChild from "./pages/AddChild";
+import ChildStats from "./pages/ChildStats";
+import ContactTrainer from "./pages/ContactTrainer";
+import ProDashboard from "./pages/ProDashboard";
+import ProContracts from "./pages/ProContracts";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +69,11 @@ const App = () => (
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/club-offers" element={<ClubOffers />} />
           <Route path="/leaderboards" element={<Leaderboards />} />
+          <Route path="/add-child" element={<AddChild />} />
+          <Route path="/child-stats/:id" element={<ChildStats />} />
+          <Route path="/contact-trainer" element={<ContactTrainer />} />
+          <Route path="/pro-dashboard" element={<ProDashboard />} />
+          <Route path="/pro-contracts" element={<ProContracts />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
