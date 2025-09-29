@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, UserCheck, Zap, ArrowRight } from "lucide-react";
-import heroImage from "@/assets/hero-gaming.jpg";
+import heroImage from "@/assets/terry-bogard-hero.jpg";
 
 const Hero = () => {
   return (
