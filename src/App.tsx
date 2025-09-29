@@ -34,6 +34,9 @@ import ChildStats from "./pages/ChildStats";
 import ContactTrainer from "./pages/ContactTrainer";
 import ProDashboard from "./pages/ProDashboard";
 import ProContracts from "./pages/ProContracts";
+import ProApprovals from "./pages/ProApprovals";
+import ContractModeration from "./pages/ContractModeration";
+import ReviewModeration from "./pages/ReviewModeration";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +77,9 @@ const App = () => (
           <Route path="/contact-trainer" element={<ContactTrainer />} />
           <Route path="/pro-dashboard" element={<ProDashboard />} />
           <Route path="/pro-contracts" element={<ProContracts />} />
+          <Route path="/pro-approvals" element={<ProApprovals />} />
+          <Route path="/contract-moderation" element={<ContractModeration />} />
+          <Route path="/review-moderation" element={<ReviewModeration />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
