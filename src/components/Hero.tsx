@@ -21,60 +21,60 @@ const Hero = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
           {/* Left Content */}
           <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+            <div className="space-y-6 animate-fade-in">
+              <h1 className="text-5xl lg:text-7xl font-bold text-foreground leading-tight">
                 Level Up Your
-                <span className="bg-gradient-primary bg-clip-text text-transparent"> Gaming</span>
+                <span className="neon-text bg-gradient-primary bg-clip-text text-transparent"> Gaming</span>
               </h1>
-              <p className="text-xl text-muted-foreground max-w-lg">
+              <p className="text-xl lg:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
                 Master gaming skills, compete in tournaments, and connect with top 
                 gamers worldwide. Your journey to becoming a pro starts here.
               </p>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-6 animate-fade-in">
               <Link to="/player-registration">
-                <Button variant="hero" size="lg" className="text-lg px-8 py-4">
+                <Button variant="hero" size="lg" className="text-lg px-10 py-6 group">
                   Start Training
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/game-selection">
-                <Button variant="gaming" size="lg" className="text-lg px-8 py-4">
+                <Button variant="gaming" size="lg" className="text-lg px-10 py-6">
                   Explore Games
                 </Button>
               </Link>
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8">
-              <div className="flex items-center gap-3 text-foreground">
-                <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-primary" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 animate-fade-in">
+              <div className="gaming-card flex items-center gap-4 p-4 rounded-lg border border-border/30 bg-card/30">
+                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center shadow-neon">
+                  <Shield className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold">Secure Learning</p>
+                  <p className="font-semibold text-foreground">Secure Learning</p>
                   <p className="text-sm text-muted-foreground">Safe environment</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 text-foreground">
-                <div className="w-10 h-10 bg-secondary/20 rounded-lg flex items-center justify-center">
-                  <UserCheck className="w-5 h-5 text-secondary" />
+              <div className="gaming-card flex items-center gap-4 p-4 rounded-lg border border-border/30 bg-card/30">
+                <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center shadow-orange">
+                  <UserCheck className="w-6 h-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="font-semibold">Expert Trainers</p>
+                  <p className="font-semibold text-foreground">Expert Trainers</p>
                   <p className="text-sm text-muted-foreground">Pro-level coaching</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 text-foreground">
-                <div className="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-accent" />
+              <div className="gaming-card flex items-center gap-4 p-4 rounded-lg border border-border/30 bg-card/30">
+                <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center shadow-accent">
+                  <Zap className="w-6 h-6 text-accent" />
                 </div>
                 <div>
-                  <p className="font-semibold">Fast Progress</p>
+                  <p className="font-semibold text-foreground">Fast Progress</p>
                   <p className="text-sm text-muted-foreground">Rapid skill building</p>
                 </div>
               </div>
@@ -82,24 +82,24 @@ const Hero = () => {
           </div>
 
           {/* Right Content - Game Card */}
-          <div className="flex justify-center lg:justify-end">
-            <Card className="w-full max-w-md bg-gradient-card border-border/50 p-6 shadow-elegant">
-              <div className="space-y-4">
-                <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+          <div className="flex justify-center lg:justify-end animate-fade-in">
+            <Card className="gaming-card w-full max-w-md bg-gradient-card border-border/50 p-8 shadow-card float">
+              <div className="space-y-6">
+                <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-elegant">
                   <img 
                     src={heroImage} 
                     alt="Featured training session" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                   />
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Elite Training Program</h3>
-                  <p className="text-muted-foreground">
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-bold text-foreground">Elite Training Program</h3>
+                  <p className="text-muted-foreground text-lg leading-relaxed">
                     Join our intensive pro-level training sessions and master advanced techniques.
                   </p>
                 </div>
                 <Link to="/player-registration">
-                  <Button variant="hero" className="w-full">
+                  <Button variant="premium" className="w-full text-lg py-4">
                     Join Now - Free Trial
                   </Button>
                 </Link>

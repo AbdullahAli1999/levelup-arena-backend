@@ -7,17 +7,17 @@ const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
-    <header className="bg-background/95 backdrop-blur-md border-b border-border sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3">
+    <header className="glass sticky top-0 z-50 border-b border-border/50">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Gamepad2 className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-3 hover-scale">
+            <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center shadow-neon animate-pulse-glow">
+              <Gamepad2 className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">LevelUp</h1>
-              <p className="text-xs text-muted-foreground -mt-1">Academy</p>
+              <h1 className="text-2xl font-bold text-foreground neon-text">LevelUp</h1>
+              <p className="text-sm text-muted-foreground -mt-1 font-medium">Academy</p>
             </div>
           </div>
 
