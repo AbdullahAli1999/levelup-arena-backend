@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, UserCheck, Zap, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import saudiHeroImage from "@/assets/saudi-gamer-hero.jpg";
+import fatalFuryHeroImage from "@/assets/fatal-fury-gamer-hero.jpg";
 
 const Hero = () => {
   return (
@@ -10,8 +10,8 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 opacity-30">
         <img 
-          src={saudiHeroImage} 
-          alt="Professional Saudi esports player in traditional attire training in a modern gaming setup" 
+          src={fatalFuryHeroImage} 
+          alt="Fatal Fury anime style esports champion training in a modern gaming setup" 
           className="w-full h-full object-cover"
         />
       </div>
@@ -27,8 +27,8 @@ const Hero = () => {
                 <span className="neon-text bg-gradient-primary bg-clip-text text-transparent"> Gaming</span>
               </h1>
               <p className="text-xl lg:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
-                Master gaming skills with traditional values and modern techniques. Connect with top 
-                gamers worldwide while honoring our gaming heritage.
+                Master legendary fighting techniques and compete in epic tournaments. 
+                Channel the spirit of Fatal Fury champions and become the ultimate fighter.
               </p>
             </div>
 
@@ -87,8 +87,8 @@ const Hero = () => {
               <div className="space-y-6">
                 <div className="aspect-video bg-muted rounded-xl overflow-hidden shadow-elegant">
                   <img 
-                    src={saudiHeroImage} 
-                    alt="Elite Saudi gamer training session with traditional and modern elements" 
+                    src={fatalFuryHeroImage} 
+                    alt="Fatal Fury anime style champion in elite training session" 
                     className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
                   />
                 </div>
