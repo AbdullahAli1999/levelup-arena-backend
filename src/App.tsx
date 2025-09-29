@@ -17,6 +17,13 @@ import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClubOffers from "./pages/ClubOffers";
 import Login from "./components/Login";
+import MyBookings from "./pages/MyBookings";
+import BookingConfirmation from "./pages/BookingConfirmation";
+import ProGameSelection from "./pages/ProGameSelection";
+import ProRequirements from "./pages/ProRequirements";
+import ModeratorRegistration from "./pages/ModeratorRegistration";
+import ModeratorPending from "./pages/ModeratorPending";
+import ProPendingStatus from "./pages/ProPendingStatus";
 
 const queryClient = new QueryClient();
 
@@ -32,11 +39,18 @@ const App = () => (
           <Route path="/player-registration" element={<PlayerRegistration />} />
           <Route path="/game-selection" element={<GameSelection />} />
           <Route path="/player-dashboard" element={<PlayerDashboard />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+          <Route path="/pro-game-selection" element={<ProGameSelection />} />
+          <Route path="/pro-requirements" element={<ProRequirements />} />
           <Route path="/pro-player-registration" element={<ProPlayerRegistration />} />
+          <Route path="/pro-pending" element={<ProPendingStatus />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
           <Route path="/trainer-selection" element={<TrainerSelection />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+          <Route path="/moderator-registration" element={<ModeratorRegistration />} />
+          <Route path="/moderator-pending" element={<ModeratorPending />} />
           <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/club-offers" element={<ClubOffers />} />
