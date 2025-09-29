@@ -9,6 +9,7 @@ import {
   Settings,
   ArrowRight 
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const UserTypeSection = () => {
   const userTypes = [
@@ -19,7 +20,8 @@ const UserTypeSection = () => {
       features: ["Game Selection", "Trainer Matching", "Payment System", "Leaderboards"],
       buttonText: "Register as Player",
       gradient: "bg-gradient-primary",
-      shadowClass: "hover:shadow-neon"
+      shadowClass: "hover:shadow-neon",
+      link: "/player-registration"
     },
     {
       title: "Pro Player",
@@ -28,7 +30,8 @@ const UserTypeSection = () => {
       features: ["Game Specialization", "Requirements Review", "Trainer Approval", "Advanced Classes"],
       buttonText: "Apply as Pro",
       gradient: "bg-gradient-secondary",
-      shadowClass: "hover:shadow-orange"
+      shadowClass: "hover:shadow-orange",
+      link: "/pro-player-registration"
     },
     {
       title: "Parent",
@@ -37,7 +40,8 @@ const UserTypeSection = () => {
       features: ["Child Registration", "Safe Environment", "Parental Controls", "Progress Tracking"],
       buttonText: "Register Child",
       gradient: "bg-gradient-card",
-      shadowClass: "hover:shadow-elegant"
+      shadowClass: "hover:shadow-elegant",
+      link: "/parent-dashboard"
     },
     {
       title: "Trainer",
@@ -46,7 +50,8 @@ const UserTypeSection = () => {
       features: ["Class Management", "Player Overview", "Session Scheduling", "Performance Analytics"],
       buttonText: "Join as Trainer",
       gradient: "bg-gradient-primary",
-      shadowClass: "hover:shadow-neon"
+      shadowClass: "hover:shadow-neon",
+      link: "/trainer-registration"
     },
     {
       title: "Moderator",
@@ -55,7 +60,8 @@ const UserTypeSection = () => {
       features: ["Community Management", "Player Support", "Content Moderation", "Trainer Assistance"],
       buttonText: "Apply as Moderator",
       gradient: "bg-gradient-secondary",
-      shadowClass: "hover:shadow-orange"
+      shadowClass: "hover:shadow-orange",
+      link: "/moderator-registration"
     },
     {
       title: "Admin",
@@ -64,7 +70,8 @@ const UserTypeSection = () => {
       features: ["System Management", "User Administration", "Analytics Dashboard", "Platform Control"],
       buttonText: "Admin Access",
       gradient: "bg-gradient-card",
-      shadowClass: "hover:shadow-elegant"
+      shadowClass: "hover:shadow-elegant",
+      link: "/admin-dashboard"
     }
   ];
 
@@ -114,13 +121,15 @@ const UserTypeSection = () => {
                   </div>
 
                   {/* Button */}
-                  <Button 
-                    variant="outline" 
-                    className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 transition-smooth"
-                  >
-                    {type.buttonText}
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
+                  <Link to={type.link}>
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 transition-smooth"
+                    >
+                      {type.buttonText}
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             );

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Gamepad2, Users, Trophy, GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -40,12 +41,16 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-            <Button variant="hero" size="sm">
-              Sign Up
-            </Button>
+            <Link to="/player-dashboard">
+              <Button variant="ghost" size="sm">
+                Demo Dashboard
+              </Button>
+            </Link>
+            <Link to="/player-registration">
+              <Button variant="hero" size="sm">
+                Join Academy
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

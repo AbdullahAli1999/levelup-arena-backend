@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, UserCheck, Zap, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/terry-bogard-hero.jpg";
 
 const Hero = () => {
@@ -33,13 +34,17 @@ const Hero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="hero" size="lg" className="text-lg px-8 py-4">
-                Start Training
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-              <Button variant="gaming" size="lg" className="text-lg px-8 py-4">
-                Submit Club Offer
-              </Button>
+              <Link to="/player-registration">
+                <Button variant="hero" size="lg" className="text-lg px-8 py-4">
+                  Start Training
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
+              <Link to="/game-selection">
+                <Button variant="gaming" size="lg" className="text-lg px-8 py-4">
+                  Explore Games
+                </Button>
+              </Link>
             </div>
 
             {/* Features */}
@@ -93,9 +98,11 @@ const Hero = () => {
                     Join our intensive pro-level training sessions and master advanced techniques.
                   </p>
                 </div>
-                <Button variant="hero" className="w-full">
-                  Join Now - Free Trial
-                </Button>
+                <Link to="/player-registration">
+                  <Button variant="hero" className="w-full">
+                    Join Now - Free Trial
+                  </Button>
+                </Link>
               </div>
             </Card>
           </div>
