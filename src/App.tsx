@@ -24,6 +24,9 @@ import ProRequirements from "./pages/ProRequirements";
 import ModeratorRegistration from "./pages/ModeratorRegistration";
 import ModeratorPending from "./pages/ModeratorPending";
 import ProPendingStatus from "./pages/ProPendingStatus";
+import TrainerRegistration from "./pages/TrainerRegistration";
+import ParentRegistration from "./pages/ParentRegistration";
+import Leaderboards from "./pages/Leaderboards";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +48,9 @@ const App = () => (
           <Route path="/pro-requirements" element={<ProRequirements />} />
           <Route path="/pro-player-registration" element={<ProPlayerRegistration />} />
           <Route path="/pro-pending" element={<ProPendingStatus />} />
+          <Route path="/parent-registration" element={<ParentRegistration />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
+          <Route path="/trainer-registration" element={<TrainerRegistration />} />
           <Route path="/trainer-selection" element={<TrainerSelection />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
@@ -54,6 +59,7 @@ const App = () => (
           <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/club-offers" element={<ClubOffers />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
