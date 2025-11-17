@@ -1,17 +1,43 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Crown, Users, DollarSign, TrendingUp, Settings, Shield, Trophy, Star, UserPlus, Building } from "lucide-react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
-export default function AdminDashboard() {
-  const adminStats = {
-    totalUsers: 2847,
-    activeTrainers: 124,
-    monthlyRevenue: 185000,
-    growthRate: 23
-  };
+function AdminDashboardContent() {
+  const { user } = useAuth();
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalPlayers: 0,
+    totalTrainers: 0,
+    totalPros: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      const [profilesData, playersData, trainersData, prosData] = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('players').select('id', { count: 'exact', head: true }),
+        supabase.from('trainers').select('id', { count: 'exact', head: true }),
+        supabase.from('pros').select('id', { count: 'exact', head: true }),
+      ]);
+
+      setStats({
+        totalUsers: profilesData.count || 0,
+        totalPlayers: playersData.count || 0,
+        totalTrainers: trainersData.count || 0,
+        totalPros: prosData.count || 0,
+      });
+    }
+
+    fetchStats();
+  }, []);
 
   const recentSignups = [
     { name: "Ahmed Ali", type: "Player", date: "2 hours ago", avatar: "/placeholder.svg" },
@@ -74,8 +100,8 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                  <p className="text-2xl font-bold text-blue-600">{adminStats.totalUsers.toLocaleString()}</p>
-                  <p className="text-xs text-green-600 mt-1">+{Math.floor(adminStats.totalUsers * 0.05)} this month</p>
+                  <p className="text-2xl font-bold text-blue-600">{stats.totalUsers.toLocaleString()}</p>
+                  <p className="text-xs text-green-600 mt-1">All registered users</p>
                 </div>
                 <Users className="h-8 w-8 text-blue-500" />
               </div>
@@ -87,8 +113,8 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Active Trainers</p>
-                  <p className="text-2xl font-bold text-green-600">{adminStats.activeTrainers}</p>
-                  <p className="text-xs text-green-600 mt-1">+{Math.floor(adminStats.activeTrainers * 0.08)} this month</p>
+                  <p className="text-2xl font-bold text-green-600">{stats.totalTrainers}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Registered trainers</p>
                 </div>
                 <Trophy className="h-8 w-8 text-green-500" />
               </div>
@@ -99,9 +125,9 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-                  <p className="text-2xl font-bold text-purple-600">{adminStats.monthlyRevenue.toLocaleString()} SAR</p>
-                  <p className="text-xs text-green-600 mt-1">+{adminStats.growthRate}% growth</p>
+                  <p className="text-sm font-medium text-muted-foreground">Pro Players</p>
+                  <p className="text-2xl font-bold text-purple-600">{stats.totalPros} Pros</p>
+                  <p className="text-xs text-muted-foreground mt-1">Registered pro players</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-purple-500" />
               </div>
@@ -112,9 +138,9 @@ export default function AdminDashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Growth Rate</p>
-                  <p className="text-2xl font-bold text-orange-600">{adminStats.growthRate}%</p>
-                  <p className="text-xs text-muted-foreground mt-1">Month over month</p>
+                  <p className="text-sm font-medium text-muted-foreground">Players</p>
+                  <p className="text-2xl font-bold text-orange-600">{stats.totalPlayers}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Registered players</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-orange-500" />
               </div>
@@ -366,5 +392,13 @@ export default function AdminDashboard() {
         </Tabs>
       </main>
     </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <ProtectedRoute requireAuth={true} requiredRole="ADMIN">
+      <AdminDashboardContent />
+    </ProtectedRoute>
   );
 }
