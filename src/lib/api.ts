@@ -164,7 +164,7 @@ class ApiService {
     const formData = new FormData();
     Object.keys(data).forEach(key => {
       if (key === 'cv') {
-        formData.append('cv', data.cv);
+        formData.append('file', data.cv);
       } else {
         formData.append(key, (data as any)[key]);
       }
@@ -226,10 +226,41 @@ class ApiService {
   }
 
   async registerTrainer(data: any): Promise<TrainerDTO> {
-    return this.request<TrainerDTO>('/api/v1/trainer/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
+    const formData = new FormData();
+    Object.keys(data).forEach(key => {
+      if (key === 'cv' && data.cv instanceof File) {
+        formData.append('file', data.cv);
+      } else {
+        formData.append(key, (data as any)[key]);
+      }
     });
+
+    return this.upload<TrainerDTO>('/trainer/register', formData);
+  }
+
+  // File Upload/Download
+  async uploadPdf(file: File): Promise<{ id: number; message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.upload<{ id: number; message: string }>('/pdf/upload', formData);
+  }
+
+  async downloadPdf(id: number): Promise<Blob> {
+    const url = `${this.baseURL}/pdf/download/${id}`;
+    
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: {
+        ...(this.token && { Authorization: `Basic ${this.token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to download file');
+    }
+
+    return response.blob();
   }
 
   // Sessions
