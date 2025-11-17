@@ -41,6 +41,9 @@ export function useUserRole() {
   const isAdmin = hasRole('ADMIN');
   const isModerator = hasRole('MODERATOR');
   const isTrainer = hasRole('TRAINER');
+  const isPro = hasRole('PRO');
+  const isPlayer = hasRole('PLAYER');
+  const isParent = hasRole('PARENTS');
 
-  return { roles, hasRole, isAdmin, isModerator, isTrainer, loading };
+  return { roles, hasRole, isAdmin, isModerator, isTrainer, isPro, isPlayer, isParent, loading };
 }
