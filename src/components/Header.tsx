@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +18,7 @@ import {
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { isAdmin, isModerator, isTrainer, isPro, isPlayer, isParent } = useUserRole();
-  const [profileData, setProfileData] = useState<{ first_name: string } | null>(null);
+  const [profileData, setProfileData] = useState<{ first_name: string; avatar_url: string } | null>(null);
 
   const getDashboards = () => {
     const dashboards = [];
@@ -36,7 +37,7 @@ const Header = () => {
     if (user) {
       supabase
         .from('profiles')
-        .select('first_name')
+        .select('first_name, avatar_url')
         .eq('id', user.id)
         .single()
         .then(({ data }) => {
@@ -88,7 +89,12 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
-                      <User className="h-4 w-4" />
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={profileData?.avatar_url} />
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                          {profileData?.first_name?.[0]?.toUpperCase() || <User className="h-3 w-3" />}
+                        </AvatarFallback>
+                      </Avatar>
                       <span className="hidden sm:inline">
                         {profileData?.first_name || user?.email?.split('@')[0]}
                       </span>
@@ -100,9 +106,21 @@ const Header = () => {
                     className="w-56 bg-background border-border z-50"
                   >
                     <DropdownMenuLabel className="text-foreground">
-                      {profileData?.first_name || user?.email?.split('@')[0]}
-                      <div className="text-xs font-normal text-muted-foreground mt-1">
-                        {user?.email}
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={profileData?.avatar_url} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {profileData?.first_name?.[0]?.toUpperCase() || <User className="h-5 w-5" />}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">
+                            {profileData?.first_name || user?.email?.split('@')[0]}
+                          </div>
+                          <div className="text-xs font-normal text-muted-foreground truncate">
+                            {user?.email}
+                          </div>
+                        </div>
                       </div>
                     </DropdownMenuLabel>
                     
