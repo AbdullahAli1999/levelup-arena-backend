@@ -1,27 +1,36 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut, LayoutDashboard } from "lucide-react";
+import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut, LayoutDashboard, Settings, User, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { isAdmin, isModerator, isTrainer, isPro, isPlayer, isParent } = useUserRole();
   const [profileData, setProfileData] = useState<{ first_name: string } | null>(null);
 
-  const getDashboardLink = () => {
-    if (isAdmin) return '/admin-dashboard';
-    if (isModerator) return '/moderator-dashboard';
-    if (isTrainer) return '/trainer-dashboard';
-    if (isPro) return '/pro-dashboard';
-    if (isParent) return '/parent-dashboard';
-    if (isPlayer) return '/player-dashboard';
-    return null;
+  const getDashboards = () => {
+    const dashboards = [];
+    if (isAdmin) dashboards.push({ label: 'Admin Dashboard', path: '/admin-dashboard', icon: LayoutDashboard });
+    if (isModerator) dashboards.push({ label: 'Moderator Dashboard', path: '/moderator-dashboard', icon: LayoutDashboard });
+    if (isTrainer) dashboards.push({ label: 'Trainer Dashboard', path: '/trainer-dashboard', icon: LayoutDashboard });
+    if (isPro) dashboards.push({ label: 'Pro Dashboard', path: '/pro-dashboard', icon: LayoutDashboard });
+    if (isParent) dashboards.push({ label: 'Parent Dashboard', path: '/parent-dashboard', icon: LayoutDashboard });
+    if (isPlayer) dashboards.push({ label: 'Player Dashboard', path: '/player-dashboard', icon: LayoutDashboard });
+    return dashboards;
   };
 
-  const dashboardLink = getDashboardLink();
+  const dashboards = getDashboards();
 
   useEffect(() => {
     if (user) {
@@ -76,21 +85,64 @@ const Header = () => {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
-                <span className="text-sm text-muted-foreground">
-                  Welcome, {profileData?.first_name || user?.email?.split('@')[0]}
-                </span>
-                {dashboardLink && (
-                  <Link to={dashboardLink}>
-                    <Button variant="default" size="sm">
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
-                      Dashboard
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline">
+                        {profileData?.first_name || user?.email?.split('@')[0]}
+                      </span>
+                      <ChevronDown className="h-4 w-4" />
                     </Button>
-                  </Link>
-                )}
-                <Button variant="outline" size="sm" onClick={logout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    align="end" 
+                    className="w-56 bg-background border-border z-50"
+                  >
+                    <DropdownMenuLabel className="text-foreground">
+                      {profileData?.first_name || user?.email?.split('@')[0]}
+                      <div className="text-xs font-normal text-muted-foreground mt-1">
+                        {user?.email}
+                      </div>
+                    </DropdownMenuLabel>
+                    
+                    {dashboards.length > 0 && (
+                      <>
+                        <DropdownMenuSeparator className="bg-border" />
+                        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase">
+                          Dashboards
+                        </DropdownMenuLabel>
+                        {dashboards.map((dashboard) => (
+                          <DropdownMenuItem key={dashboard.path} asChild className="cursor-pointer">
+                            <Link to={dashboard.path} className="flex items-center">
+                              <dashboard.icon className="h-4 w-4 mr-2" />
+                              {dashboard.label}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </>
+                    )}
+                    
+                    <DropdownMenuSeparator className="bg-border" />
+                    
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/settings" className="flex items-center">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator className="bg-border" />
+                    
+                    <DropdownMenuItem 
+                      onClick={logout}
+                      className="cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>
