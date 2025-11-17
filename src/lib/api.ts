@@ -32,8 +32,8 @@ import {
 } from '@/types/api';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.levelupacademy.sa' 
-  : 'http://localhost:8080';
+  ? 'https://api.levelupacademy.sa/api/v1' 
+  : 'http://localhost:8080/api/v1';
 
 class ApiService {
   private baseURL: string;
@@ -41,7 +41,7 @@ class ApiService {
 
   constructor() {
     this.baseURL = API_BASE_URL;
-    this.token = localStorage.getItem('auth_token');
+    this.token = sessionStorage.getItem('auth_credentials');
   }
 
   private async request<T>(
@@ -51,9 +51,10 @@ class ApiService {
     const url = `${this.baseURL}${endpoint}`;
     
     const config: RequestInit = {
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(this.token && { Authorization: `Basic ${this.token}` }),
         ...options.headers,
       },
       ...options,
@@ -82,8 +83,9 @@ class ApiService {
     
     const config: RequestInit = {
       method: 'POST',
+      credentials: 'include',
       headers: {
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(this.token && { Authorization: `Basic ${this.token}` }),
       },
       body: formData,
     };
@@ -105,40 +107,56 @@ class ApiService {
 
   setToken(token: string) {
     this.token = token;
-    localStorage.setItem('auth_token', token);
+    sessionStorage.setItem('auth_credentials', token);
   }
 
   clearToken() {
     this.token = null;
-    localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_credentials');
   }
 
   // Auth
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    return this.request<LoginResponse>('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
+    // Create Basic Auth credentials
+    const basicAuth = btoa(`${credentials.username}:${credentials.password}`);
+    this.setToken(basicAuth);
+    
+    // Verify credentials by getting user role
+    const role = await this.request<string>('/user/get-role', {
+      method: 'GET',
     });
+    
+    // Get user info
+    const user = await this.request<UserDTO>('/user/get-my-info', {
+      method: 'GET',
+    });
+    
+    return {
+      token: basicAuth,
+      user,
+      expiresIn: 3600,
+    };
   }
 
   async logout(): Promise<void> {
+    await this.request<void>('/user/logout', { method: 'POST' });
     this.clearToken();
   }
 
   // Players
   async registerPlayer(data: PlayerRegisterRequest): Promise<PlayerDTO> {
-    return this.request<PlayerDTO>('/api/players/register', {
+    return this.request<PlayerDTO>('/player/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getPlayer(playerId: number): Promise<PlayerDTO> {
-    return this.request<PlayerDTO>(`/api/v1/player/get-player/${playerId}`);
+    return this.request<PlayerDTO>(`/player/get-player/${playerId}`);
   }
 
   async getAllPlayers(): Promise<PlayerDTO[]> {
-    return this.request<PlayerDTO[]>('/api/v1/player/player');
+    return this.request<PlayerDTO[]>('/player/get');
   }
 
   // Pros
@@ -152,28 +170,28 @@ class ApiService {
       }
     });
 
-    return this.upload<ProDTO>('/api/pros/register', formData);
+    return this.upload<ProDTO>('/pro/register', formData);
   }
 
   async getPros(): Promise<ProDTO[]> {
-    return this.request<ProDTO[]>('/api/v1/pro/professional');
+    return this.request<ProDTO[]>('/pro/get');
   }
 
   async approvePro(proId: number): Promise<ProDTO> {
-    return this.request<ProDTO>(`/api/v1/pro/approve/${proId}`, {
+    return this.request<ProDTO>(`/pro/approve/${proId}`, {
       method: 'POST',
     });
   }
 
   async rejectPro(proId: number): Promise<void> {
-    return this.request<void>(`/api/v1/pro/reject/${proId}`, {
+    return this.request<void>(`/pro/reject/${proId}`, {
       method: 'PUT',
     });
   }
 
   // Parents & Children
   async registerParent(data: ParentRegisterRequest): Promise<ParentDTO> {
-    return this.request<ParentDTO>('/api/parents/register', {
+    return this.request<ParentDTO>('/parent/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
