@@ -8,8 +8,20 @@ import { useUserRole } from "@/hooks/useUserRole";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const { isAdmin } = useUserRole();
+  const { isAdmin, isModerator, isTrainer, isPro, isPlayer, isParent } = useUserRole();
   const [profileData, setProfileData] = useState<{ first_name: string } | null>(null);
+
+  const getDashboardLink = () => {
+    if (isAdmin) return '/admin-dashboard';
+    if (isModerator) return '/moderator-dashboard';
+    if (isTrainer) return '/trainer-dashboard';
+    if (isPro) return '/pro-dashboard';
+    if (isParent) return '/parent-dashboard';
+    if (isPlayer) return '/player-dashboard';
+    return null;
+  };
+
+  const dashboardLink = getDashboardLink();
 
   useEffect(() => {
     if (user) {
@@ -67,8 +79,8 @@ const Header = () => {
                 <span className="text-sm text-muted-foreground">
                   Welcome, {profileData?.first_name || user?.email?.split('@')[0]}
                 </span>
-                {isAdmin && (
-                  <Link to="/admin-dashboard">
+                {dashboardLink && (
+                  <Link to={dashboardLink}>
                     <Button variant="default" size="sm">
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       Dashboard
