@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut } from "lucide-react";
+import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { isAdmin } = useUserRole();
   const [profileData, setProfileData] = useState<{ first_name: string } | null>(null);
 
   useEffect(() => {
@@ -65,6 +67,14 @@ const Header = () => {
                 <span className="text-sm text-muted-foreground">
                   Welcome, {profileData?.first_name || user?.email?.split('@')[0]}
                 </span>
+                {isAdmin && (
+                  <Link to="/admin-dashboard">
+                    <Button variant="default" size="sm">
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
                 <Button variant="outline" size="sm" onClick={logout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
