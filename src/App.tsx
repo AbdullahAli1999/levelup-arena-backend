@@ -41,6 +41,7 @@ import UserRoleManagement from "./pages/UserRoleManagement";
 import GameManagement from "./pages/GameManagement";
 import TrainerApprovals from "./pages/TrainerApprovals";
 import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const App = () => (
           <Route path="/game-management" element={<GameManagement />} />
           <Route path="/trainer-approvals" element={<TrainerApprovals />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
