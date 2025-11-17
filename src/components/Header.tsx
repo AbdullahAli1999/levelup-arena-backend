@@ -1,10 +1,26 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const [profileData, setProfileData] = useState<{ first_name: string } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfileData(data);
+        });
+    }
+  }, [user]);
 
   return (
     <header className="glass sticky top-0 z-50 border-b border-border/50">
@@ -47,7 +63,7 @@ const Header = () => {
             {isAuthenticated ? (
               <>
                 <span className="text-sm text-muted-foreground">
-                  Welcome, {user?.firstName}
+                  Welcome, {profileData?.first_name || user?.email?.split('@')[0]}
                 </span>
                 <Button variant="outline" size="sm" onClick={logout}>
                   <LogOut className="h-4 w-4 mr-2" />
@@ -56,7 +72,7 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Link to="/login">
+                <Link to="/auth">
                   <Button variant="ghost" size="sm">
                     <LogIn className="h-4 w-4 mr-2" />
                     Login

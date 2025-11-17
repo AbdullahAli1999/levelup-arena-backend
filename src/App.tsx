@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 import PlayerRegistration from "./pages/PlayerRegistration";
 import GameSelection from "./pages/GameSelection";
 import PlayerDashboard from "./pages/PlayerDashboard";
@@ -16,7 +17,6 @@ import TrainerDashboard from "./pages/TrainerDashboard";
 import ModeratorDashboard from "./pages/ModeratorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClubOffers from "./pages/ClubOffers";
-import Login from "./components/Login";
 import MyBookings from "./pages/MyBookings";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import ProGameSelection from "./pages/ProGameSelection";
@@ -52,7 +52,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/player-registration" element={<PlayerRegistration />} />
           <Route path="/game-selection" element={<GameSelection />} />
           <Route path="/player-dashboard" element={<PlayerDashboard />} />
