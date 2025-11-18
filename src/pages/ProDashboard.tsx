@@ -22,7 +22,8 @@ import {
   Gamepad2,
   MessageSquare,
   Settings,
-  Bell
+  Bell,
+  Mail
 } from 'lucide-react';
 
 const ProDashboard = () => {
@@ -175,6 +176,14 @@ const ProDashboard = () => {
                 {playerData.notifications.filter(n => !n.read).length > 0 && (
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
                 )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/notification-history')}
+                className="gap-2"
+              >
+                <Mail className="h-4 w-4" />
+                <span className="hidden sm:inline">Notifications</span>
               </Button>
               <Button
                 variant="outline"
