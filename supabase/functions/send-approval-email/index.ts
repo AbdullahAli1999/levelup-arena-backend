@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -153,19 +152,33 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
-    const emailResponse = await resend.emails.send({
-      from: "LevelUp Academy <onboarding@resend.dev>",
-      to: [email],
-      subject: subject,
-      html: htmlContent,
+    // Send email using Resend API
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'LevelUp Academy <onboarding@resend.dev>',
+        to: [email],
+        subject: subject,
+        html: htmlContent,
+      }),
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    if (!resendResponse.ok) {
+      const error = await resendResponse.text();
+      throw new Error(`Resend API error: ${error}`);
+    }
+
+    const data = await resendResponse.json();
+    console.log("Email sent successfully:", data);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        messageId: emailResponse.data?.id 
+        messageId: data.id 
       }),
       {
         status: 200,
