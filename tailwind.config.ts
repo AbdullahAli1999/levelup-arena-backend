@@ -180,6 +180,14 @@ export default {
             opacity: "0",
             transform: "translate(-50%, -50%)"
           }
+        },
+        "gradient-shift": {
+          "0%, 100%": { 
+            backgroundPosition: "0% 50%"
+          },
+          "50%": { 
+            backgroundPosition: "100% 50%"
+          }
         }
       },
       animation: {
@@ -199,6 +207,7 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
         "ripple": "ripple 0.6s ease-out",
+        "gradient-shift": "gradient-shift 4s ease-in-out infinite",
         
         // Combined Animations
         "enter": "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
@@ -250,6 +259,13 @@ export default {
         // Neon Text
         '.neon-text': {
           '@apply text-primary animate-neon-pulse': {}
+        },
+        
+        // Animated Gradient Text
+        '.gradient-text-animated': {
+          background: 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)), hsl(var(--primary)))',
+          backgroundSize: '300% 100%',
+          '@apply bg-clip-text text-transparent animate-gradient-shift': {}
         }
       }
       
