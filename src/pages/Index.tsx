@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import UserTypeSection from "@/components/UserTypeSection";
 import ClubOfferSection from "@/components/ClubOfferSection";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <UserTypeSection />
       <ClubOfferSection />
       <Footer />
+      <ScrollToTop />
     </div>
   );
 };
