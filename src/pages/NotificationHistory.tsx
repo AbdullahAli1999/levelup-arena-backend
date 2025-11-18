@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 
 const NotificationHistory = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['email-notifications'],
@@ -28,6 +29,29 @@ const NotificationHistory = () => {
       return data;
     },
   });
+
+  // Set up real-time subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('email-notifications-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'email_notifications'
+        },
+        () => {
+          // Refetch notifications when new ones are added
+          queryClient.invalidateQueries({ queryKey: ['email-notifications'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const getEmailTypeIcon = (type: string) => {
     switch (type) {
