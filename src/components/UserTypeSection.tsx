@@ -64,28 +64,35 @@ const UserTypeSection = () => {
             return (
               <Card 
                 key={type.title}
-                className={`${type.gradient} p-6 border-border/50 transition-all duration-300 ${type.shadowClass} transform hover:scale-105`}
+                className={`${type.gradient} p-6 border-border/50 transition-all duration-500 ${type.shadowClass} transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden`}
               >
-                <div className="space-y-6">
+                {/* Animated background glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="space-y-6 relative z-10">
                   {/* Header */}
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-                      <IconComponent className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-white/20 transition-all duration-300 group-hover:rotate-6 group-hover:scale-110">
+                      <IconComponent className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-white">{type.title}</h3>
+                    <h3 className="text-xl font-bold text-white group-hover:tracking-wide transition-all duration-300">{type.title}</h3>
                   </div>
 
                   {/* Description */}
-                  <p className="text-white/80 leading-relaxed">
+                  <p className="text-white/80 leading-relaxed group-hover:text-white transition-colors duration-300">
                     {type.description}
                   </p>
 
                   {/* Features */}
                   <div className="space-y-2">
                     {type.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center gap-2 text-white/90">
-                        <div className="w-1.5 h-1.5 bg-white/60 rounded-full"></div>
-                        <span className="text-sm">{feature}</span>
+                      <div 
+                        key={featureIndex} 
+                        className="flex items-center gap-2 text-white/90 group-hover:text-white transition-all duration-300"
+                        style={{ transitionDelay: `${featureIndex * 50}ms` }}
+                      >
+                        <div className="w-1.5 h-1.5 bg-white/60 rounded-full group-hover:bg-white group-hover:scale-150 transition-all duration-300"></div>
+                        <span className="text-sm group-hover:translate-x-1 transition-transform duration-300">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -94,10 +101,12 @@ const UserTypeSection = () => {
                   <Link to={type.link}>
                     <Button 
                       variant="outline" 
-                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 transition-smooth"
+                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20 transition-all duration-300 group-hover:shadow-lg group-hover:border-white/40 group-hover:scale-105"
                     >
-                      {type.buttonText}
-                      <ArrowRight className="w-4 h-4" />
+                      <span className="flex items-center gap-2">
+                        {type.buttonText}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </span>
                     </Button>
                   </Link>
                 </div>
