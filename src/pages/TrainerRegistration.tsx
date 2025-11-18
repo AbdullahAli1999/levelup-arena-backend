@@ -206,19 +206,72 @@ export default function TrainerRegistration() {
     setLoading(true);
     
     try {
-      // Simulate API call with multipart/form-data
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Import supabase client
+      const { supabase } = await import('@/integrations/supabase/client');
       
+      // 1. Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            username: formData.username,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Failed to create user account');
+
+      const userId = authData.user.id;
+
+      // 2. Upload CV file to storage
+      let cvUrl = null;
+      if (cvFile) {
+        const fileExt = 'pdf';
+        const fileName = `${userId}-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(`trainer-cvs/${fileName}`, cvFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(`trainer-cvs/${fileName}`);
+        
+        cvUrl = urlData.publicUrl;
+      }
+
+      // 3. Create trainer record
+      const { error: trainerError } = await supabase
+        .from('trainers')
+        .insert({
+          user_id: userId,
+          bio: `${formData.bio}\n\nExperience: ${formData.experience}\nSpecializations: ${formData.specializations.join(', ')}\nAvailability: ${formData.availability.join(', ')}`,
+          specialization: formData.specializations.join(', '),
+          hourly_rate: Number(formData.hourlyRate),
+          is_approved: false,
+        });
+
+      if (trainerError) throw trainerError;
+
       toast({
         title: "Application Submitted Successfully!",
-        description: "Your trainer application is now under admin review.",
+        description: "Your trainer application is now under admin review. Check your email for confirmation.",
       });
       
+      // Sign out the newly created user so they don't auto-login
+      await supabase.auth.signOut();
+      
       navigate('/trainer-pending');
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Trainer registration error:', error);
       toast({
         title: "Submission Failed",
-        description: "Please try again or contact support.",
+        description: error.message || "Please try again or contact support.",
         variant: "destructive",
       });
     } finally {
