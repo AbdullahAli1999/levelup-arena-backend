@@ -65,22 +65,18 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-foreground hover:text-primary transition-smooth">
+            <Link to="/" className="text-foreground hover:text-primary transition-smooth font-medium">
               Home
-            </a>
+            </Link>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Link to="/game-selection" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-smooth">
                 <Users className="w-4 h-4" />
                 <span>Players</span>
-              </div>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              </Link>
+              <Link to="/pro-game-selection" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-smooth">
                 <Trophy className="w-4 h-4" />
                 <span>Pro Players</span>
-              </div>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <GraduationCap className="w-4 h-4" />
-                <span>Trainers</span>
-              </div>
+              </Link>
             </div>
           </nav>
 
@@ -174,11 +170,36 @@ const Header = () => {
                     Login
                   </Button>
                 </Link>
-                <Link to="/player-registration">
-                  <Button variant="hero" size="sm">
-                    Join Academy
-                  </Button>
-                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="hero" size="sm" className="gap-2">
+                      Join Academy
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-sm border-border/50 z-50">
+                    <DropdownMenuLabel>Join as</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/player-registration" className="cursor-pointer">
+                        <Users className="h-4 w-4 mr-2" />
+                        Player
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/pro-game-selection" className="cursor-pointer">
+                        <Trophy className="h-4 w-4 mr-2" />
+                        Pro Player
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/parent-registration" className="cursor-pointer">
+                        <User className="h-4 w-4 mr-2" />
+                        Parent
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
           </div>

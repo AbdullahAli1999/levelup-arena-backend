@@ -1,4 +1,5 @@
-import { Gamepad2, MessageCircle, Users } from "lucide-react";
+import { Gamepad2, MessageCircle, Users, GraduationCap, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -26,18 +27,18 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Quick Links</h3>
             <div className="space-y-2">
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-smooth">
+              <Link to="/" className="block text-muted-foreground hover:text-primary transition-smooth">
                 Home
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-smooth">
-                About Us
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-smooth">
+              </Link>
+              <Link to="/game-selection" className="block text-muted-foreground hover:text-primary transition-smooth">
                 Training Programs
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-primary transition-smooth">
+              </Link>
+              <Link to="/leaderboards" className="block text-muted-foreground hover:text-primary transition-smooth">
                 Leaderboards
-              </a>
+              </Link>
+              <Link to="/club-offers" className="block text-muted-foreground hover:text-primary transition-smooth">
+                Club Offers
+              </Link>
             </div>
           </div>
 
@@ -45,25 +46,30 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground">Join As</h3>
             <div className="space-y-2">
-              <a href="#" className="block text-muted-foreground hover:text-secondary transition-smooth">
+              <Link to="/player-registration" className="block text-muted-foreground hover:text-secondary transition-smooth">
                 Player Registration
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-secondary transition-smooth">
+              </Link>
+              <Link to="/pro-game-selection" className="block text-muted-foreground hover:text-secondary transition-smooth">
                 Pro Player Application
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-secondary transition-smooth">
+              </Link>
+              <Link to="/parent-registration" className="block text-muted-foreground hover:text-secondary transition-smooth">
                 Parent Registration
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-secondary transition-smooth">
-                Trainer Portal
-              </a>
+              </Link>
             </div>
           </div>
 
-          {/* Community */}
+          {/* Staff & Community */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground">Community</h3>
-            <div className="space-y-3">
+            <h3 className="font-semibold text-foreground">Staff & Community</h3>
+            <div className="space-y-2">
+              <Link to="/trainer-registration" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-smooth">
+                <GraduationCap className="w-4 h-4" />
+                <span>Become a Trainer</span>
+              </Link>
+              <Link to="/moderator-registration" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-smooth">
+                <Shield className="w-4 h-4" />
+                <span>Moderator Portal</span>
+              </Link>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MessageCircle className="w-4 h-4" />
                 <span>Discord Community</span>
@@ -72,12 +78,6 @@ const Footer = () => {
                 <Users className="w-4 h-4" />
                 <span>Live Support</span>
               </div>
-              <a href="#" className="block text-muted-foreground hover:text-accent transition-smooth">
-                Submit Club Offer
-              </a>
-              <a href="#" className="block text-muted-foreground hover:text-accent transition-smooth">
-                Partnership Program
-              </a>
             </div>
           </div>
         </div>
