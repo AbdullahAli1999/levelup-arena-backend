@@ -5,10 +5,12 @@ import ClubOfferSection from "@/components/ClubOfferSection";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
+import CursorTrail from "@/components/CursorTrail";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <CursorTrail />
       <ScrollProgressBar />
       <Header />
       <Hero />
