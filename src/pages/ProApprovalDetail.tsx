@@ -124,17 +124,21 @@ export default function ProApprovalDetail() {
         console.error('Role error:', roleError);
       }
 
-      // Send Discord invite email
+      // Send approval notification email
       try {
-        await supabase.functions.invoke('send-discord-invite', {
+        await supabase.functions.invoke('notify-pro-application-status', {
           body: {
             email: proData.profile.email,
             userName: `${proData.profile.first_name} ${proData.profile.last_name}`,
-            userType: 'pro'
+            gamerTag: proData.gaming_username,
+            selectedGame: proData.selected_game,
+            status: 'approved'
           }
         });
+        console.log('Approval email sent successfully');
       } catch (emailError) {
         console.error('Email error:', emailError);
+        // Don't fail the approval if email fails
       }
 
       toast({
@@ -177,9 +181,27 @@ export default function ProApprovalDetail() {
 
       if (error) throw error;
 
+      // Send rejection notification email
+      try {
+        await supabase.functions.invoke('notify-pro-application-status', {
+          body: {
+            email: proData.profile.email,
+            userName: `${proData.profile.first_name} ${proData.profile.last_name}`,
+            gamerTag: proData.gaming_username,
+            selectedGame: proData.selected_game,
+            status: 'rejected',
+            rejectionReason: rejectionReason
+          }
+        });
+        console.log('Rejection email sent successfully');
+      } catch (emailError) {
+        console.error('Email error:', emailError);
+        // Don't fail the rejection if email fails
+      }
+
       toast({
         title: "Application rejected",
-        description: "The applicant has been notified.",
+        description: "The applicant has been notified via email.",
       });
 
       navigate('/pro-approvals');
