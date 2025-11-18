@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut, LayoutDashboard, Settings, User, ChevronDown } from "lucide-react";
+import { Gamepad2, Users, Trophy, GraduationCap, LogIn, LogOut, LayoutDashboard, Settings, User, ChevronDown, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,8 @@ const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { isAdmin, isModerator, isTrainer, isPro, isPlayer, isParent } = useUserRole();
   const [profileData, setProfileData] = useState<{ first_name: string; avatar_url: string } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [joinMenuOpen, setJoinMenuOpen] = useState(false);
 
   const getDashboards = () => {
     const dashboards = [];
@@ -47,6 +49,18 @@ const Header = () => {
         });
     }
   }, [user]);
+
+  useEffect(() => {
+    // Prevent scrolling when mobile menu is open
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <header className="glass sticky top-0 z-50 border-b border-border/50">
@@ -203,8 +217,182 @@ const Header = () => {
               </>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden animate-fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          
+          {/* Sliding Menu */}
+          <div className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-card border-l border-border/50 z-50 md:hidden animate-slide-in-right shadow-2xl">
+            <div className="flex flex-col h-full">
+              {/* Menu Header */}
+              <div className="flex items-center justify-between p-6 border-b border-border/50">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Menu</h2>
+                  <p className="text-sm text-muted-foreground">Navigate</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Menu Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Navigation Links */}
+                <div className="space-y-2">
+                  <Link 
+                    to="/" 
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Gamepad2 className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Home</span>
+                  </Link>
+                  <Link 
+                    to="/game-selection" 
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Users className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Players</span>
+                  </Link>
+                  <Link 
+                    to="/pro-game-selection" 
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Trophy className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Pro Players</span>
+                  </Link>
+                </div>
+
+                {isAuthenticated ? (
+                  <>
+                    {/* User Profile Section */}
+                    <div className="pt-4 border-t border-border/50 space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={profileData?.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {profileData?.first_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {profileData?.first_name || user?.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {user?.email}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Dashboard Links */}
+                      {dashboards.map((dashboard) => {
+                        const Icon = dashboard.icon;
+                        return (
+                          <Link
+                            key={dashboard.path}
+                            to={dashboard.path}
+                            className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Icon className="h-5 w-5 text-primary" />
+                            <span className="font-medium">{dashboard.label}</span>
+                          </Link>
+                        );
+                      })}
+
+                      <Link
+                        to="/settings"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Settings className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Settings</span>
+                      </Link>
+
+                      <button
+                        onClick={() => {
+                          logout();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-destructive/10 text-destructive transition-colors w-full"
+                      >
+                        <LogOut className="h-5 w-5" />
+                        <span className="font-medium">Logout</span>
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Join Academy Options */}
+                    <div className="pt-4 border-t border-border/50 space-y-2">
+                      <p className="text-sm font-semibold text-muted-foreground px-3 mb-2">Join Academy</p>
+                      <Link
+                        to="/player-registration"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Users className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Player</span>
+                      </Link>
+                      <Link
+                        to="/pro-game-selection"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Trophy className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Pro Player</span>
+                      </Link>
+                      <Link
+                        to="/parent-registration"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5 text-primary" />
+                        <span className="font-medium">Parent</span>
+                      </Link>
+                    </div>
+
+                    {/* Login Button */}
+                    <Link
+                      to="/auth"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button className="w-full" variant="outline">
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </header>
   );
 };
