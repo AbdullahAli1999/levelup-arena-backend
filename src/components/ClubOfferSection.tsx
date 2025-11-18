@@ -64,7 +64,7 @@ const ClubOfferSection = () => {
               </div>
               <h2 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
                 Find Your Next
-                <span className="bg-gradient-secondary bg-clip-text text-transparent"> Champion</span>
+                <span className="gradient-text-animated"> Champion</span>
               </h2>
               <p className="text-xl text-muted-foreground">
                 Connect with talented players from LevelUp Academy. Our graduates are 

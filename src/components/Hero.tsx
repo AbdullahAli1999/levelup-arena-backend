@@ -49,7 +49,7 @@ const Hero = () => {
             <div className="space-y-6 animate-fade-in opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
               <h1 className="text-5xl lg:text-7xl font-bold text-foreground leading-tight">
                 Level Up Your
-                <span className="neon-text bg-gradient-primary bg-clip-text text-transparent"> Gaming</span>
+                <span className="gradient-text-animated"> Gaming</span>
               </h1>
               <p className="text-xl lg:text-2xl text-muted-foreground max-w-2xl leading-relaxed">
                 Master legendary fighting techniques and compete in epic tournaments. 
