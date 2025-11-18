@@ -235,6 +235,7 @@ export type Database = {
         Row: {
           email_type: string
           id: string
+          is_read: boolean | null
           metadata: Json | null
           sent_at: string | null
           status: string | null
@@ -243,6 +244,7 @@ export type Database = {
         Insert: {
           email_type: string
           id?: string
+          is_read?: boolean | null
           metadata?: Json | null
           sent_at?: string | null
           status?: string | null
@@ -251,6 +253,7 @@ export type Database = {
         Update: {
           email_type?: string
           id?: string
+          is_read?: boolean | null
           metadata?: Json | null
           sent_at?: string | null
           status?: string | null
