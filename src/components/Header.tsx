@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/NotificationBell";
+import { EmailNotificationCenter } from "@/components/EmailNotificationCenter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,6 +89,7 @@ const Header = () => {
             {isAuthenticated ? (
               <>
                 <NotificationBell />
+                <EmailNotificationCenter />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2">
