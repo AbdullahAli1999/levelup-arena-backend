@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Search, Loader2, User, Gamepad2, Calendar } from 'lucide-react';
+import { ArrowLeft, Search, Loader2, User, Gamepad2, Calendar, TrendingUp, Users, Clock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -86,6 +86,18 @@ export default function ProApprovals() {
     );
   }
 
+  const stats = {
+    total: applications.length,
+    pending: applications.filter(a => !a.is_approved).length,
+    approved: applications.filter(a => a.is_approved).length,
+    thisWeek: applications.filter(a => {
+      const created = new Date(a.created_at);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return created >= weekAgo;
+    }).length
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -93,14 +105,65 @@ export default function ProApprovals() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/admin-dashboard')}
+            onClick={() => navigate('/moderator-dashboard')}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Pro Player Applications</h1>
+            <h1 className="text-3xl font-bold text-foreground">Pro Player Applications</h1>
             <p className="text-muted-foreground">Review and approve pro player registrations</p>
           </div>
+        </div>
+
+        {/* Stats Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="glass">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Applications</p>
+                  <p className="text-3xl font-bold text-foreground">{stats.total}</p>
+                </div>
+                <Users className="w-8 h-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Pending Review</p>
+                  <p className="text-3xl font-bold text-secondary">{stats.pending}</p>
+                </div>
+                <Clock className="w-8 h-8 text-secondary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Approved</p>
+                  <p className="text-3xl font-bold text-primary">{stats.approved}</p>
+                </div>
+                <CheckCircle className="w-8 h-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">This Week</p>
+                  <p className="text-3xl font-bold text-accent">{stats.thisWeek}</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-accent" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="flex gap-4">
@@ -134,44 +197,62 @@ export default function ProApprovals() {
             </Card>
           ) : (
             filteredApplications.map((app) => (
-              <Card key={app.id} className="hover:border-primary/50 transition-colors">
+              <Card key={app.id} className="card-glow hover:border-primary/50 transition-all hover:scale-[1.01]">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                        <User className="h-5 w-5 text-primary" />
                         {app.profile.first_name} {app.profile.last_name}
                       </CardTitle>
-                      <CardDescription>@{app.gaming_username}</CardDescription>
+                      <CardDescription className="flex items-center gap-2">
+                        <span>@{app.gaming_username}</span>
+                        {app.profile.email && (
+                          <>
+                            <span>•</span>
+                            <span className="text-xs">{app.profile.email}</span>
+                          </>
+                        )}
+                      </CardDescription>
                     </div>
-                    <Badge variant={app.is_approved ? "default" : "secondary"}>
-                      {app.is_approved ? 'Approved' : 'Pending'}
+                    <Badge variant={app.is_approved ? "default" : "secondary"} className="text-sm">
+                      {app.is_approved ? 'Approved' : 'Pending Review'}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Gamepad2 className="h-4 w-4 text-muted-foreground" />
-                        <span>{app.selected_game || 'Not specified'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div className="space-y-4">
+                    <div className="flex items-center flex-wrap gap-4 text-sm">
+                      {app.selected_game && (
+                        <div className="flex items-center gap-2 bg-gradient-card px-3 py-1.5 rounded-lg">
+                          <Gamepad2 className="h-4 w-4 text-primary" />
+                          <span className="font-medium">{app.selected_game}</span>
+                        </div>
+                      )}
+                      {app.specialization && (
+                        <Badge variant="outline" className="text-xs">
+                          {app.specialization}
+                        </Badge>
+                      )}
+                      <div className="flex items-center gap-2 text-muted-foreground ml-auto">
+                        <Calendar className="h-4 w-4" />
                         <span>{new Date(app.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                     
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {app.bio || 'No bio provided'}
-                    </p>
+                    {app.bio && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 bg-muted/30 p-3 rounded-lg">
+                        {app.bio}
+                      </p>
+                    )}
 
                     <div className="flex gap-2 pt-2">
                       <Button
                         onClick={() => navigate(`/pro-approvals/${app.id}`)}
                         className="flex-1"
+                        variant={app.is_approved ? "outline" : "default"}
                       >
-                        View Details & {app.is_approved ? 'Review' : 'Approve'}
+                        {app.is_approved ? 'View Details' : 'Review & Approve'}
                       </Button>
                     </div>
                   </div>
