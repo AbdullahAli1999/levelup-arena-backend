@@ -72,15 +72,26 @@ export default function TrainerPending() {
             </ul>
           </div>
 
-          {/* Action Button */}
-          <Button 
-            onClick={() => navigate('/')}
-            className="w-full gap-2"
-            size="lg"
-          >
-            <Home className="h-5 w-5" />
-            Return to Home
-          </Button>
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            <Button 
+              onClick={() => navigate('/auth')}
+              className="w-full gap-2"
+              size="lg"
+            >
+              <CheckCircle className="h-5 w-5" />
+              Login Now
+            </Button>
+            <Button 
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="w-full gap-2"
+              size="lg"
+            >
+              <Home className="h-5 w-5" />
+              Return to Home
+            </Button>
+          </div>
 
           {/* Contact Support */}
           <p className="text-center text-sm text-muted-foreground mt-6">

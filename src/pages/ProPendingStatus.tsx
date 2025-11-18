@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle, AlertTriangle, Trophy, ChevronRight, ArrowLeft, Star, Target } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Clock, CheckCircle, AlertTriangle, Trophy, ChevronRight, ArrowLeft, Star, Target, LogIn, Home } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function ProPendingStatus() {
   const location = useLocation();
+  const navigate = useNavigate();
   const selectedGame = location.state?.selectedGame || 'sf6';
 
   const gameInfo = {
@@ -299,19 +300,23 @@ export default function ProPendingStatus() {
           </Card>
 
           {/* Navigation */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => navigate('/auth')} size="lg">
+              <LogIn className="h-4 w-4 mr-2" />
+              Login Now
+            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button variant="outline" onClick={() => navigate('/')} className="flex-1">
+                <Home className="h-4 w-4 mr-2" />
                 Back to Home
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link to="/sessions">
-                Browse Training Sessions
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+              </Button>
+              <Button variant="outline" asChild className="flex-1">
+                <Link to="/sessions">
+                  Browse Training Sessions
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </main>

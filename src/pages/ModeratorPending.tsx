@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle, Mail, MessageSquare, Trophy, ChevronRight, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Clock, CheckCircle, Mail, MessageSquare, Trophy, ChevronRight, ArrowLeft, LogIn, Home } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ModeratorPending() {
+  const navigate = useNavigate();
   const applicationDetails = {
     submittedAt: '2024-01-15 14:30',
     applicationId: 'MOD-2024-001',
@@ -243,19 +244,23 @@ export default function ModeratorPending() {
           </Card>
 
           {/* Navigation */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => navigate('/auth')} size="lg">
+              <LogIn className="h-4 w-4 mr-2" />
+              Login Now
+            </Button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button variant="outline" onClick={() => navigate('/')} className="flex-1">
+                <Home className="h-4 w-4 mr-2" />
                 Back to Home
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link to="/sessions">
-                Browse Sessions (Read-Only)
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+              </Button>
+              <Button variant="outline" asChild className="flex-1">
+                <Link to="/sessions">
+                  Browse Sessions (Read-Only)
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </main>
