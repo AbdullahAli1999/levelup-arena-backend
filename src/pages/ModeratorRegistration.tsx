@@ -136,26 +136,68 @@ export default function ModeratorRegistration() {
     setLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Import supabase client
+      const { supabase } = await import('@/integrations/supabase/client');
       
+      // 1. Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            username: formData.username,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+          }
+        }
+      });
+
+      if (authError) throw authError;
+      if (!authData.user) throw new Error('Failed to create user account');
+
+      const userId = authData.user.id;
+
+      // 2. Add MODERATOR role (pending approval)
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: userId,
+          role: 'MODERATOR',
+        });
+
+      if (roleError) throw roleError;
+
+      // 3. Update profile with phone and notes in bio
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          avatar_url: formData.phone ? `tel:${formData.phone}` : null, // Store phone temporarily
+        })
+        .eq('id', userId);
+
+      if (profileError) console.error('Profile update error:', profileError);
+
       if (isAdminCreated) {
         toast({
           title: "Moderator Created Successfully",
-          description: "The new moderator account has been created and credentials generated.",
+          description: "The new moderator account has been created.",
         });
-        // In real implementation, stay on page to show credentials
       } else {
         toast({
           title: "Application Submitted",
-          description: "Your moderator application is under review.",
+          description: "Your moderator application is under admin review. Check your email for confirmation.",
         });
+        
+        // Sign out the newly created user
+        await supabase.auth.signOut();
+        
         navigate('/moderator-pending');
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Moderator registration error:', error);
       toast({
         title: "Error",
-        description: "Failed to process request. Please try again.",
+        description: error.message || "Failed to process request. Please try again.",
         variant: "destructive",
       });
     } finally {
