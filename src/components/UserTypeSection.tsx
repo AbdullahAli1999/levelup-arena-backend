@@ -42,36 +42,6 @@ const UserTypeSection = () => {
       gradient: "bg-gradient-card",
       shadowClass: "hover:shadow-elegant",
       link: "/parent-dashboard"
-    },
-    {
-      title: "Trainer",
-      icon: GraduationCap,
-      description: "Manage classes, players, and training sessions across all skill levels",
-      features: ["Class Management", "Player Overview", "Session Scheduling", "Performance Analytics"],
-      buttonText: "Join as Trainer",
-      gradient: "bg-gradient-primary",
-      shadowClass: "hover:shadow-neon",
-      link: "/trainer-registration"
-    },
-    {
-      title: "Moderator",
-      icon: Shield,
-      description: "Community management with trainer-level access and oversight",
-      features: ["Community Management", "Player Support", "Content Moderation", "Trainer Assistance"],
-      buttonText: "Apply as Moderator",
-      gradient: "bg-gradient-secondary",
-      shadowClass: "hover:shadow-orange",
-      link: "/moderator-registration"
-    },
-    {
-      title: "Admin",
-      icon: Settings,
-      description: "Full system access and management capabilities",
-      features: ["System Management", "User Administration", "Analytics Dashboard", "Platform Control"],
-      buttonText: "Admin Access",
-      gradient: "bg-gradient-card",
-      shadowClass: "hover:shadow-elegant",
-      link: "/admin-dashboard"
     }
   ];
 
