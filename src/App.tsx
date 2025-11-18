@@ -42,6 +42,7 @@ import ReviewModeration from "./pages/ReviewModeration";
 import UserRoleManagement from "./pages/UserRoleManagement";
 import GameManagement from "./pages/GameManagement";
 import TrainerApprovals from "./pages/TrainerApprovals";
+import AdminApprovals from "./pages/AdminApprovals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -110,6 +111,7 @@ const App = () => (
           <Route path="/user-management" element={<UserRoleManagement />} />
           <Route path="/game-management" element={<GameManagement />} />
           <Route path="/trainer-approvals" element={<TrainerApprovals />} />
+          <Route path="/admin-approvals" element={<AdminApprovals />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/notification-history" element={<NotificationHistory />} />

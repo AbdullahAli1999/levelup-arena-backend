@@ -148,6 +148,73 @@ function AdminDashboardContent() {
           </Card>
         </div>
 
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Link to="/admin-approvals">
+            <Card className="hover:shadow-lg hover:border-primary transition-all cursor-pointer border-primary/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center">
+                    <UserPlus className="w-6 h-6 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Pending Approvals</h3>
+                    <p className="text-sm text-muted-foreground">Activate users</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/user-management">
+            <Card className="hover:shadow-lg hover:border-primary transition-all cursor-pointer border-primary/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">User Management</h3>
+                    <p className="text-sm text-muted-foreground">Manage roles</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/game-management">
+            <Card className="hover:shadow-lg hover:border-primary transition-all cursor-pointer border-primary/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                    <Trophy className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Game Management</h3>
+                    <p className="text-sm text-muted-foreground">Manage games</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/analytics">
+            <Card className="hover:shadow-lg hover:border-primary transition-all cursor-pointer border-primary/20">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Analytics</h3>
+                    <p className="text-sm text-muted-foreground">View insights</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
         {/* Main Content */}
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList>
