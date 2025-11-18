@@ -219,9 +219,24 @@ export default function ModeratorRegistration() {
       }
     } catch (error: any) {
       console.error('Moderator registration error:', error);
+      
+      let errorDescription: React.ReactNode = error.message || "Failed to process request. Please try again.";
+      
+      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        errorDescription = (
+          <div>
+            This email is already registered.{' '}
+            <a href="/auth" className="font-semibold underline hover:text-primary">
+              Login here
+            </a>
+            {' '}instead.
+          </div>
+        );
+      }
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to process request. Please try again.",
+        description: errorDescription as string,
         variant: "destructive",
       });
     } finally {
@@ -542,6 +557,16 @@ export default function ModeratorRegistration() {
                       )}
                       {!loading && <ChevronRight className="h-4 w-4 ml-2" />}
                     </Button>
+
+                    {/* Login Link */}
+                    {!isAdminCreated && (
+                      <div className="text-center text-sm text-muted-foreground mt-4">
+                        Already have an account?{' '}
+                        <Link to="/auth" className="font-semibold text-primary hover:underline">
+                          Login here
+                        </Link>
+                      </div>
+                    )}
                   </form>
                 </CardContent>
               </Card>

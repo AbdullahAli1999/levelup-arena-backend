@@ -217,11 +217,19 @@ export default function TrainerRegistration() {
         .maybeSingle();
 
       if (existingUser) {
-        toast({
-          title: "Account Already Exists",
-          description: "An account with this email already exists. Please login instead or use a different email.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Account Already Exists",
+        description: (
+          <>
+            An account with this email already exists.{' '}
+            <a href="/auth" className="font-semibold underline">
+              Login here
+            </a>
+            {' '}or use a different email.
+          </>
+        ),
+        variant: "destructive",
+      });
         setLoading(false);
         return;
       }
@@ -293,9 +301,26 @@ export default function TrainerRegistration() {
       navigate('/trainer-pending');
     } catch (error: any) {
       console.error('Trainer registration error:', error);
+      
+      // Show specific helpful error messages
+      let errorMessage = error.message || "Please try again or contact support.";
+      let errorDescription: React.ReactNode = errorMessage;
+
+      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        errorDescription = (
+          <div>
+            This email is already registered.{' '}
+            <a href="/auth" className="font-semibold underline hover:text-primary">
+              Login here
+            </a>
+            {' '}instead.
+          </div>
+        );
+      }
+
       toast({
         title: "Submission Failed",
-        description: error.message || "Please try again or contact support.",
+        description: errorDescription as string,
         variant: "destructive",
       });
     } finally {
@@ -678,6 +703,14 @@ export default function TrainerRegistration() {
                   )}
                   {!loading && <ChevronRight className="h-4 w-4 ml-2" />}
                 </Button>
+
+                {/* Login Link */}
+                <div className="text-center text-sm text-muted-foreground mt-4">
+                  Already have an account?{' '}
+                  <Link to="/auth" className="font-semibold text-primary hover:underline">
+                    Login here
+                  </Link>
+                </div>
               </form>
             </div>
 
