@@ -45,6 +45,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import EditChild from "./pages/EditChild";
+import NotificationHistory from "./pages/NotificationHistory";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -98,6 +99,7 @@ const App = () => (
           <Route path="/trainer-approvals" element={<TrainerApprovals />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/notification-history" element={<NotificationHistory />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
