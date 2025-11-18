@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 import CursorTrail from "@/components/CursorTrail";
+import { PendingApprovalBanner } from "@/components/PendingApprovalBanner";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <CursorTrail />
       <ScrollProgressBar />
       <Header />
+      <PendingApprovalBanner />
       <Hero />
       <UserTypeSection />
       <Footer />
