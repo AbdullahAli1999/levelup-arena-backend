@@ -49,6 +49,7 @@ import NotificationHistory from "./pages/NotificationHistory";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useEmailNotifications } from "./hooks/useEmailNotifications";
+import RouteTransition from "./components/RouteTransition";
 
 const queryClient = new QueryClient();
 
@@ -66,7 +67,8 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <GlobalNotifications />
-        <Routes>
+          <RouteTransition>
+            <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/player-registration" element={<PlayerRegistration />} />
@@ -112,6 +114,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+          </RouteTransition>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
