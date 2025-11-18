@@ -209,6 +209,23 @@ export default function TrainerRegistration() {
       // Import supabase client
       const { supabase } = await import('@/integrations/supabase/client');
       
+      // Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', formData.email)
+        .maybeSingle();
+
+      if (existingUser) {
+        toast({
+          title: "Account Already Exists",
+          description: "An account with this email already exists. Please login instead or use a different email.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      
       // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -222,7 +239,14 @@ export default function TrainerRegistration() {
         }
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        // Handle specific auth errors
+        if (authError.message.includes('already registered') || authError.message.includes('already exists')) {
+          throw new Error('This email is already registered. Please login instead or use a different email.');
+        }
+        throw authError;
+      }
+      
       if (!authData.user) throw new Error('Failed to create user account');
 
       const userId = authData.user.id;
