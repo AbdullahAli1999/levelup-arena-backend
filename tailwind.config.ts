@@ -188,6 +188,16 @@ export default {
           "50%": { 
             backgroundPosition: "100% 50%"
           }
+        },
+        "particle-fade": {
+          "0%": {
+            opacity: "1",
+            transform: "translate(-50%, -50%) scale(1)"
+          },
+          "100%": {
+            opacity: "0",
+            transform: "translate(-50%, -50%) scale(0.3) translateY(-20px)"
+          }
         }
       },
       animation: {
@@ -208,6 +218,7 @@ export default {
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
         "ripple": "ripple 0.6s ease-out",
         "gradient-shift": "gradient-shift 4s ease-in-out infinite",
+        "particle-fade": "particle-fade 1s ease-out forwards",
         
         // Combined Animations
         "enter": "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
