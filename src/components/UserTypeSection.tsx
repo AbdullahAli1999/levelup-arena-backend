@@ -10,8 +10,39 @@ import {
   ArrowRight 
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
 const UserTypeSection = () => {
+  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observers = cardRefs.current.map((ref, index) => {
+      if (!ref) return null;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setVisibleCards((prev) => new Set(prev).add(index));
+            }
+          });
+        },
+        {
+          threshold: 0.2,
+          rootMargin: '0px 0px -100px 0px'
+        }
+      );
+
+      observer.observe(ref);
+      return observer;
+    });
+
+    return () => {
+      observers.forEach((observer) => observer?.disconnect());
+    };
+  }, []);
+
   const userTypes = [
     {
       title: "Player",
@@ -61,10 +92,15 @@ const UserTypeSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {userTypes.map((type, index) => {
             const IconComponent = type.icon;
+            const isVisible = visibleCards.has(index);
             return (
               <Card 
                 key={type.title}
-                className={`${type.gradient} p-6 border-border/50 transition-all duration-500 ${type.shadowClass} transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden`}
+                ref={(el) => (cardRefs.current[index] = el)}
+                className={`${type.gradient} p-6 border-border/50 transition-all duration-700 ${type.shadowClass} transform hover:scale-105 hover:-translate-y-2 group relative overflow-hidden ${
+                  isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                }`}
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
                 {/* Animated background glow */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
