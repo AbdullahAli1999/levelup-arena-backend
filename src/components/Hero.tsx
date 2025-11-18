@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Shield, UserCheck, Zap, ArrowRight } from "lucide-react";
@@ -5,10 +6,34 @@ import { Link } from "react-router-dom";
 import fatalFuryHeroImage from "@/assets/fatal-fury-gamer-hero.jpg";
 
 const Hero = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        // Only apply parallax when hero section is visible
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          setScrollY(window.scrollY);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <section className="relative min-h-screen bg-gradient-hero overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 opacity-30">
+    <section ref={heroRef} className="relative min-h-screen bg-gradient-hero overflow-hidden">
+      {/* Background Image with Parallax */}
+      <div 
+        className="absolute inset-0 opacity-30 transition-transform duration-100 ease-out"
+        style={{
+          transform: `translateY(${scrollY * 0.5}px)`,
+          willChange: 'transform'
+        }}
+      >
         <img 
           src={fatalFuryHeroImage} 
           alt="Fatal Fury anime style esports champion training in a modern gaming setup" 
