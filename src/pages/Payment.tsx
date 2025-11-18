@@ -234,7 +234,13 @@ export default function Payment() {
                 <Button 
                   className="w-full"
                   size="lg"
-                  onClick={() => navigate('/player-dashboard')}
+                  onClick={() => {
+                    // Generate a mock transaction ID
+                    const transactionId = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
+                    
+                    // Navigate to payment success with query parameters
+                    navigate(`/payment-success?payment_id=${transactionId}&amount=${orderSummary.total}&session=${encodeURIComponent(orderSummary.package)}&transaction_id=${transactionId}`);
+                  }}
                 >
                   Complete Payment
                 </Button>

@@ -43,6 +43,9 @@ import GameManagement from "./pages/GameManagement";
 import TrainerApprovals from "./pages/TrainerApprovals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +74,7 @@ const App = () => (
           <Route path="/trainer-selection" element={<TrainerSelection />} />
           <Route path="/sessions/:id" element={<SessionDetail />} />
           <Route path="/payment" element={<Payment />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
           <Route path="/moderator-registration" element={<ModeratorRegistration />} />
           <Route path="/moderator-pending" element={<ModeratorPending />} />
