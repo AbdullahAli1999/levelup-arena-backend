@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, User, Calendar, MapPin, Trophy, Shield, Heart } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const AddChild = () => {
   const navigate = useNavigate();
@@ -65,15 +66,78 @@ const AddChild = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in",
+          variant: "destructive"
+        });
+        navigate('/auth');
+        return;
+      }
+
+      // Get parent ID
+      const { data: parentData, error: parentError } = await supabase
+        .from('parents')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (parentError || !parentData) {
+        toast({
+          title: "Error",
+          description: "Parent profile not found",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create child record
+      const { data: childData, error: childError } = await supabase
+        .from('children')
+        .insert({
+          parent_id: parentData.id,
+          name: `${formData.firstName} ${formData.lastName}`,
+          age: new Date().getFullYear() - new Date(formData.dateOfBirth).getFullYear(),
+          gaming_username: formData.firstName.toLowerCase()
+        })
+        .select()
+        .single();
+
+      if (childError) {
+        console.error('Child creation error:', childError);
+        throw childError;
+      }
+
+      // Create child stats
+      await supabase
+        .from('child_stats')
+        .insert({
+          child_id: childData.id,
+          current_rank: formData.skillLevel || 'BEGINNER',
+          sessions_completed: 0,
+          total_hours: 0,
+          achievements: []
+        });
+
       toast({
         title: "Child Profile Created",
         description: `${formData.firstName}'s profile has been successfully created!`,
       });
+      
       navigate('/parent-dashboard');
-    }, 1500);
+    } catch (error: any) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create child profile",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -35,6 +35,7 @@ import ContactTrainer from "./pages/ContactTrainer";
 import ProDashboard from "./pages/ProDashboard";
 import ProContracts from "./pages/ProContracts";
 import ProApprovals from "./pages/ProApprovals";
+import ProApprovalDetail from "./pages/ProApprovalDetail";
 import ContractModeration from "./pages/ContractModeration";
 import ReviewModeration from "./pages/ReviewModeration";
 import UserRoleManagement from "./pages/UserRoleManagement";
@@ -83,6 +84,7 @@ const App = () => (
           <Route path="/pro-dashboard" element={<ProDashboard />} />
           <Route path="/pro-contracts" element={<ProContracts />} />
           <Route path="/pro-approvals" element={<ProApprovals />} />
+          <Route path="/pro-approvals/:id" element={<ProApprovalDetail />} />
           <Route path="/contract-moderation" element={<ContractModeration />} />
           <Route path="/review-moderation" element={<ReviewModeration />} />
           <Route path="/user-management" element={<UserRoleManagement />} />
