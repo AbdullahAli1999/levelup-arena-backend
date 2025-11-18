@@ -48,8 +48,15 @@ import EditChild from "./pages/EditChild";
 import NotificationHistory from "./pages/NotificationHistory";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { useEmailNotifications } from "./hooks/useEmailNotifications";
 
 const queryClient = new QueryClient();
+
+// Component to handle global notifications
+const GlobalNotifications = () => {
+  useEmailNotifications();
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -57,6 +64,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthProvider>
+          <GlobalNotifications />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -103,6 +112,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
