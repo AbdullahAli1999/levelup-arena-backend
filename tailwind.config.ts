@@ -167,6 +167,19 @@ export default {
           "50%": { 
             textShadow: "0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary)), 0 0 30px hsl(var(--primary)), 0 0 40px hsl(var(--primary))" 
           }
+        },
+        "ripple": {
+          "0%": { 
+            width: "0px",
+            height: "0px",
+            opacity: "0.5"
+          },
+          "100%": { 
+            width: "500px",
+            height: "500px",
+            opacity: "0",
+            transform: "translate(-50%, -50%)"
+          }
         }
       },
       animation: {
@@ -185,6 +198,7 @@ export default {
         "float": "float 3s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
         "neon-pulse": "neon-pulse 2s ease-in-out infinite",
+        "ripple": "ripple 0.6s ease-out",
         
         // Combined Animations
         "enter": "fade-in 0.3s ease-out, scale-in 0.2s ease-out",
