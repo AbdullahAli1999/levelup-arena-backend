@@ -44,6 +44,7 @@ import TrainerApprovals from "./pages/TrainerApprovals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import EditChild from "./pages/EditChild";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -83,6 +84,7 @@ const App = () => (
           <Route path="/club-offers" element={<ClubOffers />} />
           <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/add-child" element={<AddChild />} />
+          <Route path="/edit-child/:id" element={<EditChild />} />
           <Route path="/child-stats/:id" element={<ChildStats />} />
           <Route path="/contact-trainer" element={<ContactTrainer />} />
           <Route path="/pro-dashboard" element={<ProDashboard />} />
