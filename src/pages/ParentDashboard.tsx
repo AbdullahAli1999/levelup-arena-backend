@@ -340,13 +340,7 @@ export default function ParentDashboard() {
                       <Button 
                         variant="outline" 
                         size="icon"
-                        onClick={() => {
-                          // For now, navigate to add-child with edit mode
-                          toast({
-                            title: "Edit feature",
-                            description: "Edit functionality coming soon",
-                          });
-                        }}
+                        onClick={() => navigate(`/edit-child/${child.id}`)}
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
