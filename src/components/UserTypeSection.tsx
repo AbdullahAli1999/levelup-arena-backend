@@ -11,10 +11,20 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import UserTypeCardSkeleton from "@/components/skeletons/UserTypeCardSkeleton";
 
 const UserTypeSection = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const observers = cardRefs.current.map((ref, index) => {
@@ -90,7 +100,14 @@ const UserTypeSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {userTypes.map((type, index) => {
+          {isLoading ? (
+            <>
+              <UserTypeCardSkeleton />
+              <UserTypeCardSkeleton />
+              <UserTypeCardSkeleton />
+            </>
+          ) : (
+            userTypes.map((type, index) => {
             const IconComponent = type.icon;
             const isVisible = visibleCards.has(index);
             return (
@@ -148,7 +165,8 @@ const UserTypeSection = () => {
                 </div>
               </Card>
             );
-          })}
+          })
+        )}
         </div>
       </div>
     </section>
