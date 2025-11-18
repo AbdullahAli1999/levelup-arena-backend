@@ -142,6 +142,10 @@ function AdminApprovalsContent() {
     try {
       setActionLoading(`trainer-${trainerId}`);
 
+      // Get trainer details for email
+      const trainer = pendingTrainers.find(t => t.id === trainerId);
+      if (!trainer) throw new Error("Trainer not found");
+
       // Update trainer approval status
       const { error: updateError } = await supabase
         .from('trainers')
@@ -157,9 +161,24 @@ function AdminApprovalsContent() {
 
       if (roleError && !roleError.message.includes('duplicate')) throw roleError;
 
+      // Send approval email
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: trainer.profiles.email,
+            name: `${trainer.profiles.first_name} ${trainer.profiles.last_name}`,
+            type: 'trainer',
+            status: 'approved'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send approval email:', emailError);
+        // Don't fail the approval if email fails
+      }
+
       toast({
         title: "Trainer Approved",
-        description: "The trainer has been activated successfully",
+        description: "The trainer has been activated and notified via email",
       });
 
       fetchPendingApprovals();
@@ -178,6 +197,26 @@ function AdminApprovalsContent() {
     try {
       setActionLoading(`trainer-reject-${trainerId}`);
 
+      // Get trainer details for email
+      const trainer = pendingTrainers.find(t => t.id === trainerId);
+      if (!trainer) throw new Error("Trainer not found");
+
+      // Send rejection email before deleting
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: trainer.profiles.email,
+            name: `${trainer.profiles.first_name} ${trainer.profiles.last_name}`,
+            type: 'trainer',
+            status: 'rejected',
+            reason: 'Thank you for your application. Unfortunately, your qualifications do not meet our current requirements. Please review our trainer requirements and feel free to reapply in the future.'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send rejection email:', emailError);
+        // Continue with deletion even if email fails
+      }
+
       const { error } = await supabase
         .from('trainers')
         .delete()
@@ -187,7 +226,7 @@ function AdminApprovalsContent() {
 
       toast({
         title: "Trainer Rejected",
-        description: "The application has been rejected",
+        description: "The application has been rejected and the applicant has been notified",
       });
 
       fetchPendingApprovals();
@@ -206,6 +245,10 @@ function AdminApprovalsContent() {
     try {
       setActionLoading(`pro-${proId}`);
 
+      // Get pro details for email
+      const pro = pendingPros.find(p => p.id === proId);
+      if (!pro) throw new Error("Pro player not found");
+
       // Update pro approval status
       const { error: updateError } = await supabase
         .from('pros')
@@ -221,9 +264,24 @@ function AdminApprovalsContent() {
 
       if (roleError && !roleError.message.includes('duplicate')) throw roleError;
 
+      // Send approval email
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: pro.profiles.email,
+            name: `${pro.profiles.first_name} ${pro.profiles.last_name}`,
+            type: 'pro',
+            status: 'approved'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send approval email:', emailError);
+        // Don't fail the approval if email fails
+      }
+
       toast({
         title: "Pro Player Approved",
-        description: "The pro player has been activated successfully",
+        description: "The pro player has been activated and notified via email",
       });
 
       fetchPendingApprovals();
@@ -242,6 +300,26 @@ function AdminApprovalsContent() {
     try {
       setActionLoading(`pro-reject-${proId}`);
 
+      // Get pro details for email
+      const pro = pendingPros.find(p => p.id === proId);
+      if (!pro) throw new Error("Pro player not found");
+
+      // Send rejection email before deleting
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: pro.profiles.email,
+            name: `${pro.profiles.first_name} ${pro.profiles.last_name}`,
+            type: 'pro',
+            status: 'rejected',
+            reason: 'Thank you for your application. After careful review, we have determined that your current qualifications do not meet our pro player requirements. Please improve your skills and achievements, then feel free to reapply in the future.'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send rejection email:', emailError);
+        // Continue with deletion even if email fails
+      }
+
       const { error } = await supabase
         .from('pros')
         .delete()
@@ -251,7 +329,7 @@ function AdminApprovalsContent() {
 
       toast({
         title: "Pro Player Rejected",
-        description: "The application has been rejected",
+        description: "The application has been rejected and the applicant has been notified",
       });
 
       fetchPendingApprovals();
