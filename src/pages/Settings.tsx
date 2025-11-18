@@ -6,13 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Upload, User, ArrowLeft, Shield, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Link } from "react-router-dom";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 function SettingsContent() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { roles } = useUserRole();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState({
@@ -20,6 +26,7 @@ function SettingsContent() {
     last_name: "",
     username: "",
     avatar_url: "",
+    created_at: "",
   });
 
   useEffect(() => {
@@ -32,7 +39,7 @@ function SettingsContent() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("first_name, last_name, username, avatar_url")
+        .select("first_name, last_name, username, avatar_url, created_at")
         .eq("id", user!.id)
         .single();
 
@@ -45,6 +52,21 @@ function SettingsContent() {
         description: "Failed to load profile",
         variant: "destructive",
       });
+    }
+  };
+
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "ADMIN":
+        return "destructive";
+      case "MODERATOR":
+        return "default";
+      case "TRAINER":
+        return "secondary";
+      case "PRO":
+        return "default";
+      default:
+        return "outline";
     }
   };
 
@@ -154,15 +176,79 @@ function SettingsContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold text-foreground mb-8">Settings</h1>
+        {/* Page Header */}
+        <div className="mb-8 space-y-4">
+          <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+          <div>
+            <h1 className="text-4xl font-bold text-foreground neon-text">Profile Settings</h1>
+            <p className="text-muted-foreground mt-2">Manage your account information and preferences</p>
+          </div>
+        </div>
 
         <div className="space-y-6">
+          {/* Account Info Card */}
+          <Card className="border-primary/20 shadow-neon">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                Account Information
+              </CardTitle>
+              <CardDescription>Your account details and roles</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="font-medium text-foreground">{user?.email}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">User ID</p>
+                  <p className="font-mono text-xs text-foreground">{user?.id}</p>
+                </div>
+              </div>
+              {profile.created_at && (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Member Since
+                    </p>
+                    <p className="font-medium text-foreground">
+                      {new Date(profile.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {roles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Roles</p>
+                  <div className="flex flex-wrap gap-2">
+                    {roles.map((role) => (
+                      <Badge key={role} variant={getRoleBadgeVariant(role)} className="text-xs">
+                        {role}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
           {/* Avatar Section */}
-          <Card>
+          <Card className="border-primary/20">
             <CardHeader>
               <CardTitle>Profile Picture</CardTitle>
-              <CardDescription>Upload your profile picture</CardDescription>
+              <CardDescription>Upload your avatar (Max 2MB)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-6">
@@ -212,10 +298,10 @@ function SettingsContent() {
           </Card>
 
           {/* Profile Information */}
-          <Card>
+          <Card className="border-primary/20">
             <CardHeader>
               <CardTitle>Profile Information</CardTitle>
-              <CardDescription>Update your profile details</CardDescription>
+              <CardDescription>Update your personal details</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleUpdateProfile} className="space-y-4">
@@ -282,6 +368,7 @@ function SettingsContent() {
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
