@@ -91,10 +91,24 @@ const App = () => (
           <Route path="/sessions/:id" element={<SessionDetail />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/trainer-dashboard" element={<TrainerDashboard />} />
+          <Route
+            path="/trainer-dashboard"
+            element={
+              <ProtectedRoute requiredRole="TRAINER">
+                <TrainerDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/moderator-registration" element={<ModeratorRegistration />} />
           <Route path="/moderator-pending" element={<ModeratorPending />} />
-          <Route path="/moderator-dashboard" element={<ModeratorDashboard />} />
+          <Route
+            path="/moderator-dashboard"
+            element={
+              <ProtectedRoute requiredRole="MODERATOR">
+                <ModeratorDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/club-offers" element={<ClubOffers />} />
           <Route path="/leaderboards" element={<Leaderboards />} />
@@ -102,7 +116,14 @@ const App = () => (
           <Route path="/edit-child/:id" element={<EditChild />} />
           <Route path="/child-stats/:id" element={<ChildStats />} />
           <Route path="/contact-trainer" element={<ContactTrainer />} />
-          <Route path="/pro-dashboard" element={<ProDashboard />} />
+          <Route
+            path="/pro-dashboard"
+            element={
+              <ProtectedRoute requiredRole="PRO">
+                <ProDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/pro-contracts" element={<ProContracts />} />
           <Route path="/pro-approvals" element={<ProApprovals />} />
           <Route path="/pro-approvals/:id" element={<ProApprovalDetail />} />
