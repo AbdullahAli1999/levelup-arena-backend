@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Target, Users, Star, ArrowRight, Building } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ClubOfferSkeleton from "@/components/skeletons/ClubOfferSkeleton";
+import { useCountUp } from "@/hooks/useCountUp";
 
 const ClubOfferSection = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   // Simulate loading
   useEffect(() => {
@@ -14,6 +17,35 @@ const ClubOfferSection = () => {
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Intersection Observer for stats animation
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -100px 0px'
+      }
+    );
+
+    if (statsRef.current) {
+      observer.observe(statsRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isLoading]);
+
+  // Animated counters
+  const tournamentWinners = useCountUp({ end: 500, duration: 2000, isVisible });
+  const placementRate = useCountUp({ end: 95, duration: 2000, isVisible });
+  const activePlayers = useCountUp({ end: 1000, duration: 2000, isVisible });
+  const satisfaction = useCountUp({ end: 4.9, duration: 2000, decimals: 1, isVisible });
 
   if (isLoading) {
     return <ClubOfferSkeleton />;
@@ -41,32 +73,32 @@ const ClubOfferSection = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-6">
+            <div ref={statsRef} className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Trophy className="w-5 h-5 text-secondary" />
-                  <span className="text-2xl font-bold text-foreground">500+</span>
+                  <span className="text-2xl font-bold text-foreground">{tournamentWinners}+</span>
                 </div>
                 <p className="text-muted-foreground">Tournament Winners</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Target className="w-5 h-5 text-primary" />
-                  <span className="text-2xl font-bold text-foreground">95%</span>
+                  <span className="text-2xl font-bold text-foreground">{placementRate}%</span>
                 </div>
                 <p className="text-muted-foreground">Placement Rate</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-accent" />
-                  <span className="text-2xl font-bold text-foreground">1000+</span>
+                  <span className="text-2xl font-bold text-foreground">{activePlayers}+</span>
                 </div>
                 <p className="text-muted-foreground">Active Players</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-secondary" />
-                  <span className="text-2xl font-bold text-foreground">4.9/5</span>
+                  <span className="text-2xl font-bold text-foreground">{satisfaction}/5</span>
                 </div>
                 <p className="text-muted-foreground">Club Satisfaction</p>
               </div>
