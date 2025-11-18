@@ -4,10 +4,12 @@ import UserTypeSection from "@/components/UserTypeSection";
 import ClubOfferSection from "@/components/ClubOfferSection";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import ScrollProgressBar from "@/components/ScrollProgressBar";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
+      <ScrollProgressBar />
       <Header />
       <Hero />
       <UserTypeSection />
