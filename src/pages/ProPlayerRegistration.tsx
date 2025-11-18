@@ -146,6 +146,21 @@ const ProPlayerRegistration = () => {
         console.error('Role error:', roleError);
       }
 
+      // Send application received confirmation email
+      try {
+        await supabase.functions.invoke('notify-pro-application-status', {
+          body: {
+            email: user.email,
+            userName: formData.gamerTag,
+            gamerTag: formData.gamerTag,
+            selectedGame: selectedGame.name,
+            status: 'received'
+          }
+        });
+      } catch (emailError) {
+        console.error('Confirmation email error:', emailError);
+      }
+
       toast.success('Application submitted successfully!');
       navigate('/pro-pending');
     } catch (error: any) {
