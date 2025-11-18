@@ -1,4 +1,4 @@
-import { Gamepad2, MessageCircle, Users, GraduationCap, Shield } from "lucide-react";
+import { Gamepad2, MessageCircle, Users, GraduationCap, Shield, Building } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 
@@ -31,7 +31,7 @@ const Footer = () => {
   return (
     <footer ref={footerRef} className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Logo & Description */}
           <div 
             className={`space-y-4 transition-all duration-700 ${
@@ -126,6 +126,28 @@ const Footer = () => {
               </div>
             </div>
           </div>
+
+          {/* Club Partnerships */}
+          <div 
+            className={`space-y-4 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            style={{ transitionDelay: '600ms' }}
+          >
+            <h3 className="font-semibold text-foreground">For Esports Clubs</h3>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Find your next champion from our talent pool of trained esports athletes.
+              </p>
+              <Link 
+                to="/club-offers" 
+                className="flex items-center gap-2 text-secondary hover:text-secondary/80 transition-smooth font-medium"
+              >
+                <Building className="w-4 h-4" />
+                <span>Submit Your Offer</span>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Section */}
@@ -133,7 +155,7 @@ const Footer = () => {
           className={`border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-all duration-700 ${
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
-          style={{ transitionDelay: '600ms' }}
+          style={{ transitionDelay: '750ms' }}
         >
           <p className="text-muted-foreground text-sm">
             © 2024 LevelUp Academy. All rights reserved.
