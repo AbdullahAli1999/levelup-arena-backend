@@ -25,6 +25,7 @@ import ModeratorRegistration from "./pages/ModeratorRegistration";
 import ModeratorPending from "./pages/ModeratorPending";
 import ProPendingStatus from "./pages/ProPendingStatus";
 import TrainerRegistration from "./pages/TrainerRegistration";
+import TrainerPending from "./pages/TrainerPending";
 import ParentRegistration from "./pages/ParentRegistration";
 import TrainerAvailability from "./pages/TrainerAvailability";
 import SessionDetail from "./pages/SessionDetail";
@@ -83,6 +84,7 @@ const App = () => (
           <Route path="/parent-registration" element={<ParentRegistration />} />
           <Route path="/parent-dashboard" element={<ParentDashboard />} />
           <Route path="/trainer-registration" element={<TrainerRegistration />} />
+          <Route path="/trainer-pending" element={<TrainerPending />} />
           <Route path="/trainer-availability" element={<TrainerAvailability />} />
           <Route path="/trainer-selection" element={<TrainerSelection />} />
           <Route path="/sessions/:id" element={<SessionDetail />} />
