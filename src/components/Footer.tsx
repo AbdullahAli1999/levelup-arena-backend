@@ -1,13 +1,44 @@
 import { Gamepad2, MessageCircle, Users, GraduationCap, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 
 const Footer = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    if (footerRef.current) {
+      observer.observe(footerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <footer className="bg-card border-t border-border">
+    <footer ref={footerRef} className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo & Description */}
-          <div className="space-y-4">
+          <div 
+            className={`space-y-4 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            style={{ transitionDelay: '0ms' }}
+          >
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Gamepad2 className="w-5 h-5 text-white" />
@@ -24,7 +55,12 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div 
+            className={`space-y-4 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            style={{ transitionDelay: '150ms' }}
+          >
             <h3 className="font-semibold text-foreground">Quick Links</h3>
             <div className="space-y-2">
               <Link to="/" className="block text-muted-foreground hover:text-primary transition-smooth">
@@ -43,7 +79,12 @@ const Footer = () => {
           </div>
 
           {/* User Types */}
-          <div className="space-y-4">
+          <div 
+            className={`space-y-4 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            style={{ transitionDelay: '300ms' }}
+          >
             <h3 className="font-semibold text-foreground">Join As</h3>
             <div className="space-y-2">
               <Link to="/player-registration" className="block text-muted-foreground hover:text-secondary transition-smooth">
@@ -59,7 +100,12 @@ const Footer = () => {
           </div>
 
           {/* Staff & Community */}
-          <div className="space-y-4">
+          <div 
+            className={`space-y-4 transition-all duration-700 ${
+              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+            style={{ transitionDelay: '450ms' }}
+          >
             <h3 className="font-semibold text-foreground">Staff & Community</h3>
             <div className="space-y-2">
               <Link to="/trainer-registration" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-smooth">
@@ -83,7 +129,12 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div 
+          className={`border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 transition-all duration-700 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+          style={{ transitionDelay: '600ms' }}
+        >
           <p className="text-muted-foreground text-sm">
             © 2024 LevelUp Academy. All rights reserved.
           </p>
