@@ -66,6 +66,40 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Validate username is unique
+      const { data: existingUsername } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('username', signupData.username)
+        .maybeSingle();
+
+      if (existingUsername) {
+        toast({
+          title: 'Username taken',
+          description: 'This username is already in use. Please choose a different one.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if email already exists
+      const { data: existingEmail } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', signupData.email)
+        .maybeSingle();
+
+      if (existingEmail) {
+        toast({
+          title: 'Account exists',
+          description: 'An account with this email already exists. Please login instead.',
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email: signupData.email,
         password: signupData.password,
@@ -79,16 +113,31 @@ export default function Auth() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific errors
+        if (error.message.includes('already registered') || error.message.includes('already exists')) {
+          throw new Error('This email is already registered. Please login instead.');
+        }
+        if (error.message.includes('username')) {
+          throw new Error('This username is already taken. Please choose a different one.');
+        }
+        throw error;
+      }
 
       toast({
         title: 'Account created',
         description: 'You can now log in!',
       });
+
+      // Switch to login tab
+      const loginTab = document.querySelector('[value="login"]') as HTMLElement;
+      loginTab?.click();
+
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: 'Signup failed',
-        description: error.message,
+        description: error.message || 'Please try again or contact support.',
         variant: 'destructive',
       });
     } finally {

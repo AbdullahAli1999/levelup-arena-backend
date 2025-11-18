@@ -212,7 +212,22 @@ const ProPlayerRegistration = () => {
       navigate('/pro-pending');
     } catch (error: any) {
       console.error('Submission error:', error);
-      toast.error(error.message || 'Failed to submit application');
+      
+      let errorDescription: React.ReactNode = error.message || 'Failed to submit application';
+      
+      if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        errorDescription = (
+          <div>
+            This email is already registered.{' '}
+            <a href="/auth" className="font-semibold underline hover:text-primary">
+              Login here
+            </a>
+            {' '}instead.
+          </div>
+        );
+      }
+      
+      toast.error(errorDescription as string);
     } finally {
       setLoading(false);
     }
@@ -578,6 +593,14 @@ const ProPlayerRegistration = () => {
                     <Crown className="w-4 h-4" />
                     {loading ? 'Submitting...' : 'Submit Application'}
                   </Button>
+                </div>
+
+                {/* Login Link */}
+                <div className="text-center text-sm text-muted-foreground mt-6">
+                  Already have an account?{' '}
+                  <a href="/auth" className="font-semibold text-primary hover:underline">
+                    Login here
+                  </a>
                 </div>
               </div>
             </CardContent>
