@@ -231,6 +231,33 @@ export type Database = {
           },
         ]
       }
+      email_notifications: {
+        Row: {
+          email_type: string
+          id: string
+          metadata: Json | null
+          sent_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          email_type: string
+          id?: string
+          metadata?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          email_type?: string
+          id?: string
+          metadata?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       games: {
         Row: {
           created_at: string | null
@@ -504,6 +531,8 @@ export type Database = {
       }
       pros: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           bio: string | null
           created_at: string | null
           cv_url: string | null
@@ -511,10 +540,15 @@ export type Database = {
           hourly_rate: number | null
           id: number
           is_approved: boolean | null
+          rejection_reason: string | null
+          requirements_pdf_url: string | null
+          selected_game: string | null
           specialization: string | null
           user_id: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           bio?: string | null
           created_at?: string | null
           cv_url?: string | null
@@ -522,10 +556,15 @@ export type Database = {
           hourly_rate?: number | null
           id?: number
           is_approved?: boolean | null
+          rejection_reason?: string | null
+          requirements_pdf_url?: string | null
+          selected_game?: string | null
           specialization?: string | null
           user_id: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           bio?: string | null
           created_at?: string | null
           cv_url?: string | null
@@ -533,6 +572,9 @@ export type Database = {
           hourly_rate?: number | null
           id?: number
           is_approved?: boolean | null
+          rejection_reason?: string | null
+          requirements_pdf_url?: string | null
+          selected_game?: string | null
           specialization?: string | null
           user_id?: string
         }
@@ -737,7 +779,14 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "ADMIN" | "MODERATOR" | "PLAYER" | "PRO" | "PARENTS" | "TRAINER"
+      app_role:
+        | "ADMIN"
+        | "MODERATOR"
+        | "PLAYER"
+        | "PRO"
+        | "PARENTS"
+        | "TRAINER"
+        | "CHILD"
       booking_status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED"
       contract_status: "PENDING" | "ACCEPTED" | "REJECTED"
       offer_status: "ACTIVE" | "CLOSED"
@@ -870,7 +919,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["ADMIN", "MODERATOR", "PLAYER", "PRO", "PARENTS", "TRAINER"],
+      app_role: [
+        "ADMIN",
+        "MODERATOR",
+        "PLAYER",
+        "PRO",
+        "PARENTS",
+        "TRAINER",
+        "CHILD",
+      ],
       booking_status: ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"],
       contract_status: ["PENDING", "ACCEPTED", "REJECTED"],
       offer_status: ["ACTIVE", "CLOSED"],
