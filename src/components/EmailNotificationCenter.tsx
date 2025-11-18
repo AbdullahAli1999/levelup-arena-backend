@@ -77,6 +77,34 @@ export const EmailNotificationCenter = () => {
     }
   };
 
+  const markAllAsRead = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('email_notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['email-notifications-preview'] });
+      toast({
+        title: 'All notifications marked as read',
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      toast({
+        title: 'Failed to mark all as read',
+        variant: 'destructive',
+        duration: 2000,
+      });
+    }
+  };
+
   // Set up real-time subscription for unread count
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -165,11 +193,24 @@ export const EmailNotificationCenter = () => {
         className="w-80 bg-card/95 backdrop-blur-sm border-border/50 z-50"
       >
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span className="text-lg font-bold">Email Notifications</span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-bold">Email Notifications</span>
+            {unreadCount > 0 && (
+              <Badge variant="secondary">
+                {unreadCount} new
+              </Badge>
+            )}
+          </div>
           {unreadCount > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {unreadCount} new
-            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={markAllAsRead}
+              className="h-7 text-xs hover:bg-primary/10 hover:text-primary"
+            >
+              <Check className="h-3 w-3 mr-1" />
+              Mark all read
+            </Button>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
