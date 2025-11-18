@@ -12,13 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Mail, CheckCircle, XCircle, Clock, InboxIcon } from 'lucide-react';
+import { Mail, CheckCircle, XCircle, Clock, InboxIcon, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface EmailNotification {
   id: string;
   email_type: string;
   sent_at: string;
+  is_read: boolean;
   metadata: {
     game?: string;
     rejection_reason?: string;
@@ -28,6 +30,7 @@ interface EmailNotification {
 export const EmailNotificationCenter = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [unreadCount, setUnreadCount] = useState(0);
 
   const { data: notifications } = useQuery({
@@ -48,6 +51,32 @@ export const EmailNotificationCenter = () => {
     },
   });
 
+  const markAsRead = async (notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    try {
+      const { error } = await supabase
+        .from('email_notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['email-notifications-preview'] });
+      toast({
+        title: 'Marked as read',
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: 'Failed to mark as read',
+        variant: 'destructive',
+        duration: 2000,
+      });
+    }
+  };
+
   // Set up real-time subscription for unread count
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -58,7 +87,7 @@ export const EmailNotificationCenter = () => {
         .from('email_notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('sent_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()); // Last 24 hours
+        .eq('is_read', false);
 
       setUnreadCount(count || 0);
     };
@@ -70,7 +99,7 @@ export const EmailNotificationCenter = () => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'email_notifications'
         },
@@ -150,14 +179,14 @@ export const EmailNotificationCenter = () => {
             {notifications.map((notification) => (
               <DropdownMenuItem
                 key={notification.id}
-                className="flex items-start gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                className="flex items-start gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors group"
                 onClick={() => navigate('/notification-history')}
               >
                 <div className="mt-0.5">
                   {getNotificationIcon(notification.email_type)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
+                  <p className={`text-sm font-medium truncate ${!notification.is_read ? 'font-bold' : ''}`}>
                     {getNotificationTitle(notification.email_type, notification.metadata)}
                   </p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -165,6 +194,17 @@ export const EmailNotificationCenter = () => {
                     {formatDistanceToNow(new Date(notification.sent_at), { addSuffix: true })}
                   </div>
                 </div>
+                {!notification.is_read && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => markAsRead(notification.id, e)}
+                    title="Mark as read"
+                  >
+                    <Check className="h-4 w-4 text-green-500" />
+                  </Button>
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />

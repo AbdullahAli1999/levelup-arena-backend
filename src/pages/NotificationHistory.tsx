@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Bell } from 'lucide-react';
+import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Bell, Check } from 'lucide-react';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 const NotificationHistory = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['email-notifications'],
@@ -88,6 +90,30 @@ const NotificationHistory = () => {
     return statusColors[status] || 'bg-gray-500/10 text-gray-400 border-gray-500/20';
   };
 
+  const markAsRead = async (notificationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('email_notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['email-notifications'] });
+      toast({
+        title: 'Marked as read',
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      toast({
+        title: 'Failed to mark as read',
+        variant: 'destructive',
+        duration: 2000,
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
@@ -135,7 +161,9 @@ const NotificationHistory = () => {
             {notifications.map((notification) => (
               <Card 
                 key={notification.id}
-                className="border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-300"
+                className={`border-border/50 bg-card/50 backdrop-blur-sm hover:bg-card/70 transition-all duration-300 ${
+                  !(notification as any).is_read ? 'border-l-4 border-l-primary' : ''
+                }`}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">
@@ -145,12 +173,17 @@ const NotificationHistory = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <CardTitle className="text-lg">
+                          <CardTitle className={`text-lg ${!(notification as any).is_read ? 'font-bold' : ''}`}>
                             {getEmailTypeLabel(notification.email_type)}
                           </CardTitle>
                           <Badge className={getStatusBadge(notification.status)}>
                             {notification.status}
                           </Badge>
+                          {!(notification as any).is_read && (
+                            <Badge variant="secondary" className="bg-primary/20 text-primary">
+                              New
+                            </Badge>
+                          )}
                         </div>
                         <CardDescription className="flex items-center gap-2 mt-1">
                           <Clock className="h-3 w-3" />
@@ -160,6 +193,17 @@ const NotificationHistory = () => {
                         </CardDescription>
                       </div>
                     </div>
+                    {!(notification as any).is_read && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => markAsRead(notification.id)}
+                        className="gap-2 hover:bg-green-500/10 hover:border-green-500/50"
+                      >
+                        <Check className="h-4 w-4" />
+                        Mark as read
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 {notification.metadata && (
