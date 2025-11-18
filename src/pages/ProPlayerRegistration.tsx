@@ -1,273 +1,387 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Gamepad2, Crown, Star, Trophy, AlertTriangle, CheckCircle, Upload } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Progress } from "@/components/ui/progress";
+import { Gamepad2, Crown, Upload, AlertTriangle, CheckCircle, ChevronLeft, FileText } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const ProPlayerRegistration = () => {
-  const requirements = [
-    { text: "Minimum rank: Diamond in chosen game", met: true },
-    { text: "At least 1000 hours of gameplay", met: true },
-    { text: "Competitive tournament experience", met: false },
-    { text: "Clean disciplinary record", met: true },
-    { text: "Fluent in Arabic or English", met: true },
-  ];
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const selectedGame = location.state?.selectedGame;
+
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    gamerTag: "",
+    bio: "",
+    specialization: "",
+    hourlyRate: "",
+    achievements: "",
+    teamExperience: "",
+  });
+
+  const [requirementsPdf, setRequirementsPdf] = useState<File | null>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+
+  if (!selectedGame) {
+    navigate('/pro-game-selection');
+    return null;
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'requirements' | 'cv') => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast.error('Please upload a PDF file');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+      
+      if (type === 'requirements') {
+        setRequirementsPdf(file);
+      } else {
+        setCvFile(file);
+      }
+    }
+  };
+
+  const uploadFile = async (file: File, path: string): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${path}/${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Upload error:', error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast.error('You must be logged in to submit an application');
+      navigate('/auth');
+      return;
+    }
+
+    if (!requirementsPdf) {
+      toast.error('Please upload your requirements proof document');
+      return;
+    }
+
+    if (!formData.gamerTag || !formData.bio) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Upload files
+      const requirementsUrl = await uploadFile(requirementsPdf, 'pro-requirements');
+      const cvUrl = cvFile ? await uploadFile(cvFile, 'pro-cvs') : null;
+
+      if (!requirementsUrl) {
+        throw new Error('Failed to upload requirements document');
+      }
+
+      // Create pro player record
+      const { error } = await supabase
+        .from('pros')
+        .insert({
+          user_id: user.id,
+          gaming_username: formData.gamerTag,
+          bio: formData.bio,
+          specialization: formData.specialization || selectedGame.category,
+          selected_game: selectedGame.name,
+          hourly_rate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : null,
+          requirements_pdf_url: requirementsUrl,
+          cv_url: cvUrl,
+          is_approved: false,
+        });
+
+      if (error) throw error;
+
+      // Add PRO role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: 'PRO',
+        });
+
+      if (roleError && !roleError.message.includes('duplicate')) {
+        console.error('Role error:', roleError);
+      }
+
+      toast.success('Application submitted successfully!');
+      navigate('/pro-pending');
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      toast.error(error.message || 'Failed to submit application');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-background/95 backdrop-blur-md border-b border-border p-4">
-        <div className="container mx-auto flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-smooth">
-            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Gamepad2 className="w-6 h-6 text-white" />
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-smooth">
+              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">LevelUp</h1>
+                <p className="text-xs text-muted-foreground -mt-1">Academy</p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Progress value={100} className="w-32 h-2" />
+              <span className="text-sm text-muted-foreground">Step 3 of 3</span>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">LevelUp</h1>
-              <p className="text-xs text-muted-foreground -mt-1">Academy</p>
-            </div>
-          </Link>
+          </div>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
+            <div className="text-5xl mb-4">{selectedGame.image}</div>
             <div className="inline-flex items-center gap-2 bg-gradient-primary text-white px-4 py-2 rounded-full mb-4">
               <Crown className="w-5 h-5" />
-              <span className="font-medium">Pro Player Registration</span>
+              <span className="font-medium">Pro Player Application</span>
             </div>
             <h1 className="text-4xl font-bold text-foreground mb-4">
-              Join the <span className="text-gradient">Elite</span>
+              {selectedGame.name} <span className="text-gradient">Application</span>
             </h1>
             <p className="text-muted-foreground text-lg">
-              Apply to become a certified pro player and mentor the next generation
+              Complete your profile and upload proof of qualifications
             </p>
           </div>
 
-          {/* Requirements Check */}
+          {/* Application Info */}
           <Card className="card-glow mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                Requirements Check
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {requirements.map((req, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center ${
-                      req.met ? "bg-green-500" : "bg-red-500"
-                    }`}>
-                      {req.met ? (
-                        <CheckCircle className="w-3 h-3 text-white" />
-                      ) : (
-                        <AlertTriangle className="w-3 h-3 text-white" />
-                      )}
-                    </div>
-                    <span className={`text-sm ${req.met ? "text-foreground" : "text-muted-foreground"}`}>
-                      {req.text}
-                    </span>
-                  </div>
-                ))}
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Selected Game</p>
+                  <p className="font-bold text-foreground">{selectedGame.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Category</p>
+                  <p className="font-bold text-foreground">{selectedGame.category}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Potential Earnings</p>
+                  <p className="font-bold text-foreground">
+                    {selectedGame.earnings.min.toLocaleString()} - {selectedGame.earnings.max.toLocaleString()} SAR/mo
+                  </p>
+                </div>
               </div>
-              
-              <Alert className="mt-4">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  You must meet all requirements to proceed. Please complete any missing requirements before applying.
-                </AlertDescription>
-              </Alert>
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Registration Form */}
+          <div className="grid grid-cols-1 gap-8">
+            {/* Profile Information */}
             <Card className="card-glow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-primary" />
-                  Personal Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="Enter your first name" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Enter your last name" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="gamerTag">Professional Gamer Tag</Label>
-                  <Input id="gamerTag" placeholder="Your professional gaming handle" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="your.email@example.com" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" placeholder="+966 50 123 4567" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="age">Age</Label>
-                    <Input id="age" type="number" placeholder="25" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nationality">Nationality</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select nationality" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="saudi">Saudi Arabia</SelectItem>
-                        <SelectItem value="uae">UAE</SelectItem>
-                        <SelectItem value="qatar">Qatar</SelectItem>
-                        <SelectItem value="kuwait">Kuwait</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="languages">Languages</Label>
-                  <Input id="languages" placeholder="Arabic, English, etc." />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Gaming Profile */}
-            <Card className="card-glow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Trophy className="w-5 h-5 text-primary" />
+                  <Crown className="w-5 h-5 text-primary" />
                   Gaming Profile
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="primaryGame">Primary Game</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your main game" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="valorant">VALORANT</SelectItem>
-                      <SelectItem value="lol">League of Legends</SelectItem>
-                      <SelectItem value="csgo">CS:GO</SelectItem>
-                      <SelectItem value="fifa">FIFA 24</SelectItem>
-                      <SelectItem value="fortnite">Fortnite</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="gamerTag">
+                    Professional Gamer Tag <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="gamerTag"
+                    name="gamerTag"
+                    value={formData.gamerTag}
+                    onChange={handleInputChange}
+                    placeholder="Your professional gaming handle"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="currentRank">Current Rank</Label>
-                  <Input id="currentRank" placeholder="e.g., Immortal 2, Diamond 1" />
+                  <Label htmlFor="bio">
+                    Professional Bio <span className="text-destructive">*</span>
+                  </Label>
+                  <Textarea
+                    id="bio"
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about your gaming career, achievements, and what makes you stand out..."
+                    className="min-h-[120px]"
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="peakRank">Peak Rank</Label>
-                  <Input id="peakRank" placeholder="Your highest achieved rank" />
+                  <Label htmlFor="specialization">Specialization</Label>
+                  <Input
+                    id="specialization"
+                    name="specialization"
+                    value={formData.specialization}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Entry Fragger, Support, IGL, etc."
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="experience">Years of Experience</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="3-5">3-5 years</SelectItem>
-                      <SelectItem value="5-7">5-7 years</SelectItem>
-                      <SelectItem value="7-10">7-10 years</SelectItem>
-                      <SelectItem value="10+">10+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="hourlyRate">Hourly Rate (SAR) - Optional</Label>
+                  <Input
+                    id="hourlyRate"
+                    name="hourlyRate"
+                    type="number"
+                    value={formData.hourlyRate}
+                    onChange={handleInputChange}
+                    placeholder="Your coaching/session rate"
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="achievements">Major Achievements</Label>
-                  <Textarea 
-                    id="achievements" 
-                    placeholder="List your tournament wins, team achievements, notable ranks, etc."
+                  <Textarea
+                    id="achievements"
+                    name="achievements"
+                    value={formData.achievements}
+                    onChange={handleInputChange}
+                    placeholder="List your tournament wins, team achievements, notable ranks, awards..."
                     className="min-h-[100px]"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="teamExperience">Team/Organization Experience</Label>
-                  <Textarea 
-                    id="teamExperience" 
-                    placeholder="Previous teams, organizations, sponsorships, etc."
+                  <Textarea
+                    id="teamExperience"
+                    name="teamExperience"
+                    value={formData.teamExperience}
+                    onChange={handleInputChange}
+                    placeholder="Previous teams, organizations, sponsorships..."
                     className="min-h-[80px]"
                   />
                 </div>
               </CardContent>
             </Card>
+
+            {/* Documents Upload */}
+            <Card className="card-glow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-primary" />
+                  Required Documents
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <Alert>
+                  <FileText className="h-4 w-4" />
+                  <AlertDescription>
+                    Upload a PDF document proving you meet the requirements (screenshots of rank, tournament results, achievements, etc.)
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-3">
+                  <Label htmlFor="requirements">
+                    Requirements Proof Document <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      type="file"
+                      id="requirements"
+                      accept=".pdf"
+                      onChange={(e) => handleFileChange(e, 'requirements')}
+                      className="hidden"
+                    />
+                    <label htmlFor="requirements" className="cursor-pointer">
+                      {requirementsPdf ? (
+                        <div className="flex items-center justify-center gap-2 text-primary">
+                          <CheckCircle className="w-6 h-6" />
+                          <span className="font-medium">{requirementsPdf.name}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload PDF (max 10MB)
+                          </p>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="cv">CV/Resume (Optional)</Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      type="file"
+                      id="cv"
+                      accept=".pdf"
+                      onChange={(e) => handleFileChange(e, 'cv')}
+                      className="hidden"
+                    />
+                    <label htmlFor="cv" className="cursor-pointer">
+                      {cvFile ? (
+                        <div className="flex items-center justify-center gap-2 text-primary">
+                          <CheckCircle className="w-6 h-6" />
+                          <span className="font-medium">{cvFile.name}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload PDF (max 10MB)
+                          </p>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-
-          {/* Documents Upload */}
-          <Card className="card-glow mt-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-5 h-5 text-primary" />
-                Required Documents
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label>Profile Photo</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Upload professional photo</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>ID/Passport Copy</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Upload ID document</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>Gaming Portfolio</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Screenshots, clips, certificates</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>References (Optional)</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                    <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Letters of recommendation</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Submit Section */}
           <Card className="card-glow mt-8">
@@ -275,31 +389,36 @@ const ProPlayerRegistration = () => {
               <div className="text-center space-y-4">
                 <h3 className="text-xl font-bold">Ready to Submit?</h3>
                 <p className="text-muted-foreground">
-                  Your application will be reviewed by our team of trainers and moderators. 
+                  Your application will be reviewed by our moderation team. 
                   This process typically takes 3-5 business days.
                 </p>
                 
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    By submitting this application, you agree that all information provided is accurate 
-                    and you meet the requirements for pro player status.
+                    By submitting this application, you confirm that all information provided is accurate 
+                    and you meet the requirements for pro player status. False information may result in permanent ban.
                   </AlertDescription>
                 </Alert>
 
                 <div className="flex gap-4 justify-center">
-                  <Link to="/game-selection-pro">
-                    <Button variant="outline">Back to Game Selection</Button>
-                  </Link>
-                  <Button className="gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/pro-requirements', { state: { selectedGame } })}
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    Back to Requirements
+                  </Button>
+                  <Button type="submit" disabled={loading} className="gap-2">
                     <Crown className="w-4 h-4" />
-                    Submit Application
+                    {loading ? 'Submitting...' : 'Submit Application'}
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
-        </div>
+        </form>
       </div>
     </div>
   );

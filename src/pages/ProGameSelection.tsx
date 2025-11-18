@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, Users, TrendingUp, ChevronRight, Crown, Target, Zap } from 'lucide-react';
+import { Trophy, Star, Users, TrendingUp, ChevronRight, Crown, Target, Zap, Gamepad2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function ProGameSelection() {
@@ -12,138 +12,247 @@ export default function ProGameSelection() {
 
   const proGames = [
     {
-      id: 'sf6',
-      name: 'Street Fighter 6',
-      category: 'Fighting',
+      id: 'valorant',
+      name: 'VALORANT',
+      category: 'FPS/Tactical',
       difficulty: 'Expert',
-      prizePool: '500K+ SAR',
-      activePros: 150,
+      prizePool: '2M+ SAR',
+      activePros: 320,
       demand: 'Very High',
-      demandLevel: 95,
-      image: '🥊',
+      demandLevel: 98,
+      image: '🎯',
       requirements: [
-        'Grand Master rank or equivalent',
-        'Tournament experience required',
-        '3+ years competitive play',
-        'Consistent top 8 placements'
+        'Immortal 3 rank minimum',
+        'VCT tournament experience',
+        'Agent pool mastery (5+ agents)',
+        'Team-based competitive experience'
       ],
       opportunities: [
-        'Saudi Pro League tournaments',
-        'International championship spots',
-        'Streaming partnerships',
-        'Academy trainer positions'
+        'VCT Middle East tournaments',
+        'Regional league spots',
+        'International championship qualifiers',
+        'Content creator partnerships'
+      ],
+      earnings: {
+        min: 20000,
+        max: 80000,
+        currency: 'SAR/month'
+      },
+      description: 'Join the fastest-growing tactical shooter esports scene in the Middle East'
+    },
+    {
+      id: 'cs2',
+      name: 'Counter-Strike 2',
+      category: 'FPS/Tactical',
+      difficulty: 'Expert',
+      prizePool: '1.5M+ SAR',
+      activePros: 250,
+      demand: 'Very High',
+      demandLevel: 95,
+      image: '🔫',
+      requirements: [
+        'Faceit Level 10 or ESEA Rank S',
+        'Major tournament experience',
+        'Map pool knowledge (all competitive maps)',
+        '5000+ hours competitive play'
+      ],
+      opportunities: [
+        'ESL Pro League qualifiers',
+        'BLAST Premier tournaments',
+        'Regional championships',
+        'Team contracts with top orgs'
+      ],
+      earnings: {
+        min: 18000,
+        max: 70000,
+        currency: 'SAR/month'
+      },
+      description: 'Compete in the world\'s most prestigious tactical FPS with decades of legacy'
+    },
+    {
+      id: 'fortnite',
+      name: 'Fortnite',
+      category: 'Battle Royale',
+      difficulty: 'Expert',
+      prizePool: '3M+ SAR',
+      activePros: 280,
+      demand: 'Very High',
+      demandLevel: 92,
+      image: '🏆',
+      requirements: [
+        'Champion League Division',
+        'FNCS qualification history',
+        'Creative 2.0 proficiency',
+        'Consistent tournament placements'
+      ],
+      opportunities: [
+        'FNCS Championships',
+        'Cash Cup tournaments',
+        'Creator Cup events',
+        'Streaming and content deals'
+      ],
+      earnings: {
+        min: 22000,
+        max: 100000,
+        currency: 'SAR/month'
+      },
+      description: 'Dominate the world\'s largest battle royale esports ecosystem'
+    },
+    {
+      id: 'lol',
+      name: 'League of Legends',
+      category: 'MOBA',
+      difficulty: 'Expert',
+      prizePool: '1.8M+ SAR',
+      activePros: 200,
+      demand: 'High',
+      demandLevel: 88,
+      image: '⚔️',
+      requirements: [
+        'Master tier minimum (top 0.1%)',
+        'Multi-role proficiency',
+        'Competitive team experience',
+        'Meta knowledge and adaptation'
+      ],
+      opportunities: [
+        'LEC/LCS regional leagues',
+        'World Championship qualifiers',
+        'Academy team positions',
+        'Coaching and analyst roles'
       ],
       earnings: {
         min: 15000,
-        max: 50000,
+        max: 60000,
         currency: 'SAR/month'
       },
-      nextTournament: '2024-02-15',
-      description: 'Dominate the Middle East fighting game scene with Street Fighter 6 mastery'
+      description: 'Join the world\'s most popular MOBA with the biggest prize pools'
     },
     {
-      id: 'tekken8',
-      name: 'Tekken 8',
-      category: 'Fighting',
+      id: 'dota2',
+      name: 'Dota 2',
+      category: 'MOBA',
       difficulty: 'Expert',
-      prizePool: '300K+ SAR',
-      activePros: 85,
+      prizePool: '2.5M+ SAR',
+      activePros: 120,
       demand: 'High',
-      demandLevel: 80,
-      image: '👊',
+      demandLevel: 85,
+      image: '🐉',
       requirements: [
-        'Tekken King rank minimum',
-        'Regional tournament wins',
-        'Character specialist expertise',
-        'Frame data knowledge'
+        'Immortal rank (top 1000)',
+        'The International qualifier experience',
+        'Hero pool mastery (20+ heroes)',
+        'Professional team experience'
       ],
       opportunities: [
-        'EVO Middle East qualifier',
-        'King of Iron Fist spots',
-        'Content creation deals',
-        'Team sponsorships'
+        'The International tournaments',
+        'DPC regional leagues',
+        'Major championships',
+        'Team coaching positions'
+      ],
+      earnings: {
+        min: 16000,
+        max: 75000,
+        currency: 'SAR/month'
+      },
+      description: 'Compete for the largest prize pools in esports history'
+    },
+    {
+      id: 'rocketleague',
+      name: 'Rocket League',
+      category: 'Sports',
+      difficulty: 'Expert',
+      prizePool: '800K+ SAR',
+      activePros: 150,
+      demand: 'Growing',
+      demandLevel: 78,
+      image: '🚗',
+      requirements: [
+        'Grand Champion 3 minimum',
+        'RLCS qualifier participation',
+        'Mechanical skill mastery',
+        'Team chemistry and positioning'
+      ],
+      opportunities: [
+        'RLCS championships',
+        'Regional majors',
+        'Freestyle and content creation',
+        'Brand partnerships'
       ],
       earnings: {
         min: 12000,
-        max: 35000,
+        max: 45000,
         currency: 'SAR/month'
       },
-      nextTournament: '2024-02-20',
-      description: 'Rise through the ranks in the most technical fighting game'
+      description: 'Master the unique blend of sports and esports in aerial soccer'
     },
     {
-      id: 'kof15',
-      name: 'King of Fighters XV',
-      category: 'Fighting',
+      id: 'cod',
+      name: 'Call of Duty',
+      category: 'FPS',
       difficulty: 'Expert',
-      prizePool: '200K+ SAR',
-      activePros: 45,
-      demand: 'Medium',
-      demandLevel: 60,
-      image: '👑',
+      prizePool: '1.2M+ SAR',
+      activePros: 180,
+      demand: 'High',
+      demandLevel: 82,
+      image: '💣',
       requirements: [
-        'Master rank achievement',
-        'Team synergy expertise',
-        'Combo execution mastery',
-        'Local tournament presence'
+        'Top 250 ranked play',
+        'CDL Challengers experience',
+        'Game mode mastery (all competitive)',
+        'Communication and teamwork'
       ],
       opportunities: [
-        'SNK sponsored events',
-        'Team-based competitions',
-        'International qualifiers',
-        'Community leadership roles'
+        'CDL Pro League',
+        'Challengers tournaments',
+        'Warzone competitions',
+        'Content and streaming'
       ],
       earnings: {
-        min: 8000,
-        max: 25000,
+        min: 14000,
+        max: 55000,
         currency: 'SAR/month'
       },
-      nextTournament: '2024-03-01',
-      description: 'Master the art of team fighting and combo execution'
+      description: 'Join the premier console FPS competitive scene'
     },
     {
-      id: 'ggst',
-      name: 'Guilty Gear Strive',
-      category: 'Fighting',
+      id: 'apex',
+      name: 'Apex Legends',
+      category: 'Battle Royale',
       difficulty: 'Expert',
-      prizePool: '150K+ SAR',
-      activePros: 35,
+      prizePool: '900K+ SAR',
+      activePros: 160,
       demand: 'Growing',
-      demandLevel: 70,
-      image: '⚡',
+      demandLevel: 75,
+      image: '🎮',
       requirements: [
-        'Celestial floor dominance',
-        'Character mastery',
-        'Roman Cancel expertise',
-        'Set play knowledge'
+        'Predator rank achievement',
+        'ALGS participation',
+        'Legend mastery (5+ legends)',
+        'Tournament consistency'
       ],
       opportunities: [
-        'Arc System Works events',
-        'Anime fighting game scene',
-        'International FGC presence',
-        'Technical content creation'
+        'ALGS Championships',
+        'Pro League spots',
+        'Creator partnerships',
+        'Team contracts'
       ],
       earnings: {
-        min: 6000,
-        max: 20000,
+        min: 11000,
+        max: 42000,
         currency: 'SAR/month'
       },
-      nextTournament: '2024-03-10',
-      description: 'Express yourself through the most stylish fighting game'
+      description: 'Compete in the fastest-paced battle royale esport'
     }
   ];
 
   const getDemandColor = (level: number) => {
-    if (level >= 90) return 'text-red-400';
-    if (level >= 70) return 'text-orange-400';
-    if (level >= 50) return 'text-yellow-400';
-    return 'text-green-400';
+    if (level >= 90) return 'text-primary';
+    if (level >= 80) return 'text-secondary';
+    return 'text-accent';
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    if (difficulty === 'Expert') return 'bg-red-500/20 text-red-400 border-red-500/30';
-    if (difficulty === 'Advanced') return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-    return 'bg-green-500/20 text-green-400 border-green-500/30';
+    return 'bg-destructive/20 text-destructive';
   };
 
   const handleGameSelect = (gameId: string) => {
@@ -152,178 +261,165 @@ export default function ProGameSelection() {
 
   const handleContinue = () => {
     if (selectedGame) {
-      navigate('/pro-requirements', { state: { selectedGame } });
+      const game = proGames.find(g => g.id === selectedGame);
+      navigate('/pro-requirements', { state: { selectedGame: game } });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
-      {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <Trophy className="h-4 w-4 text-primary-foreground" />
+    <div className="min-h-screen bg-background">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-smooth">
+              <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Gamepad2 className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-xl">LevelUp Academy</span>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">LevelUp</h1>
+                <p className="text-xs text-muted-foreground -mt-1">Academy</p>
+              </div>
             </Link>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="w-2 h-2 bg-primary rounded-full" />
-            Pro Registration - Step 1 of 4
+            <div className="flex items-center gap-2">
+              <Progress value={33} className="w-32 h-2" />
+              <span className="text-sm text-muted-foreground">Step 1 of 3</span>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Header Section */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-primary/20 text-yellow-400 px-4 py-2 rounded-full mb-4">
-              <Crown className="w-5 h-5" />
-              <span className="font-medium">Professional Path</span>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-7xl mx-auto">
+          {/* Hero Section */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-gradient-primary text-white px-6 py-3 rounded-full mb-6 shadow-glow">
+              <Crown className="w-6 h-6" />
+              <span className="font-bold text-lg">Pro Player Application</span>
             </div>
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-yellow-400 via-primary to-yellow-400 bg-clip-text text-transparent">
-              Choose Your Professional Game
+            <h1 className="text-5xl font-bold text-foreground mb-4">
+              Choose Your <span className="text-gradient">Game</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Select the game you want to compete in professionally. Each game has different requirements, 
-              earning potential, and career opportunities in the Saudi esports scene.
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Select the game you want to compete professionally in. Each game has specific requirements 
+              and opportunities in the Middle East esports scene.
             </p>
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Trophy className="h-5 w-5 text-primary" />
-                </div>
-                <div className="text-2xl font-bold text-primary">1.2M SAR</div>
-                <div className="text-sm text-muted-foreground">Total Prize Pool</div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12">
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">14M+ SAR</p>
+                <p className="text-sm text-muted-foreground">Total Prize Pool</p>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Users className="h-5 w-5 text-primary" />
-                </div>
-                <div className="text-2xl font-bold text-primary">315</div>
-                <div className="text-sm text-muted-foreground">Active Pros</div>
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <Users className="w-8 h-8 text-secondary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">1,800+</p>
+                <p className="text-sm text-muted-foreground">Active Pros</p>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-                <div className="text-2xl font-bold text-primary">24</div>
-                <div className="text-sm text-muted-foreground">Monthly Tournaments</div>
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <Star className="w-8 h-8 text-accent mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">8 Games</p>
+                <p className="text-sm text-muted-foreground">Available</p>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                </div>
-                <div className="text-2xl font-bold text-primary">85%</div>
-                <div className="text-sm text-muted-foreground">Career Success Rate</div>
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">Growing</p>
+                <p className="text-sm text-muted-foreground">Market Demand</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Game Selection */}
-          <div className="grid gap-6 mb-8">
+          {/* Game Selection Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             {proGames.map((game) => (
-              <Card 
-                key={game.id} 
-                className={`cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                  selectedGame === game.id 
-                    ? 'ring-2 ring-primary shadow-lg shadow-primary/20' 
-                    : 'hover:shadow-md'
+              <Card
+                key={game.id}
+                className={`card-glow cursor-pointer transition-all duration-300 ${
+                  selectedGame === game.id
+                    ? 'ring-2 ring-primary shadow-glow scale-[1.02]'
+                    : 'hover:border-primary/50 hover:scale-[1.01]'
                 }`}
                 onClick={() => handleGameSelect(game.id)}
               >
-                <CardContent className="p-0">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center text-3xl">
-                          {game.image}
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold">{game.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="secondary">{game.category}</Badge>
-                            <Badge variant="outline" className={getDifficultyColor(game.difficulty)}>
-                              {game.difficulty}
-                            </Badge>
-                          </div>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="text-4xl">{game.image}</div>
+                      <div>
+                        <CardTitle className="text-xl mb-1">{game.name}</CardTitle>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {game.category}
+                          </Badge>
+                          <Badge className={getDifficultyColor(game.difficulty)}>
+                            {game.difficulty}
+                          </Badge>
                         </div>
                       </div>
+                    </div>
+                    {selectedGame === game.id && (
+                      <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <ChevronRight className="w-5 h-5 text-primary-foreground" />
+                      </div>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">{game.description}</p>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-4 py-4 border-y border-border">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-foreground">{game.prizePool}</p>
+                      <p className="text-xs text-muted-foreground">Prize Pool</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-foreground">{game.activePros}</p>
+                      <p className="text-xs text-muted-foreground">Active Pros</p>
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-lg font-bold ${getDemandColor(game.demandLevel)}`}>
+                        {game.demand}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Demand</p>
+                    </div>
+                  </div>
+
+                  {/* Requirements Preview */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Target className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Key Requirements</span>
+                    </div>
+                    <ul className="space-y-1">
+                      {game.requirements.slice(0, 2).map((req, idx) => (
+                        <li key={idx} className="text-xs text-muted-foreground flex items-center gap-2">
+                          <div className="w-1 h-1 rounded-full bg-primary" />
+                          {req}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Earnings */}
+                  <div className="bg-gradient-card p-3 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Potential Earnings</span>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-primary">{game.prizePool}</div>
-                        <div className="text-sm text-muted-foreground">Prize Pool</div>
-                      </div>
-                    </div>
-
-                    <p className="text-muted-foreground mb-6">{game.description}</p>
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div>
-                        <div className="text-sm text-muted-foreground">Active Pros</div>
-                        <div className="font-bold">{game.activePros}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Demand</div>
-                        <div className={`font-bold ${getDemandColor(game.demandLevel)}`}>
-                          {game.demand}
-                        </div>
-                        <Progress value={game.demandLevel} className="mt-1 h-1" />
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Earnings Range</div>
-                        <div className="font-bold">
-                          {game.earnings.min.toLocaleString()}-{game.earnings.max.toLocaleString()} {game.earnings.currency}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-muted-foreground">Next Tournament</div>
-                        <div className="font-bold">{game.nextTournament}</div>
-                      </div>
-                    </div>
-
-                    {/* Requirements and Opportunities */}
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                          <Target className="h-4 w-4 text-red-400" />
-                          Requirements
-                        </h4>
-                        <ul className="space-y-2">
-                          {game.requirements.map((req, index) => (
-                            <li key={index} className="flex items-start gap-2 text-sm">
-                              <div className="w-1.5 h-1.5 bg-red-400 rounded-full mt-2 flex-shrink-0" />
-                              {req}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-3 flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-green-400" />
-                          Opportunities
-                        </h4>
-                        <ul className="space-y-2">
-                          {game.opportunities.map((opp, index) => (
-                            <li key={index} className="flex items-start gap-2 text-sm">
-                              <div className="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 flex-shrink-0" />
-                              {opp}
-                            </li>
-                          ))}
-                        </ul>
+                        <p className="text-sm font-bold text-foreground">
+                          {game.earnings.min.toLocaleString()} - {game.earnings.max.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{game.earnings.currency}</p>
                       </div>
                     </div>
                   </div>
@@ -334,14 +430,14 @@ export default function ProGameSelection() {
 
           {/* Continue Button */}
           <div className="flex justify-center">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               disabled={!selectedGame}
               onClick={handleContinue}
-              className="px-8"
+              className="gap-2"
             >
               Continue to Requirements
-              <ChevronRight className="h-4 w-4 ml-2" />
+              <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
         </div>
