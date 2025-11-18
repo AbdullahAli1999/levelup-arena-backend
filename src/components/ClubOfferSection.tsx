@@ -1,8 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Target, Users, Star, ArrowRight, Building } from "lucide-react";
+import { useState, useEffect } from "react";
+import ClubOfferSkeleton from "@/components/skeletons/ClubOfferSkeleton";
 
 const ClubOfferSection = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <ClubOfferSkeleton />;
+  }
+
   return (
     <section className="py-20 bg-gradient-hero">
       <div className="container mx-auto px-4">
