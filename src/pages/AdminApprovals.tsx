@@ -54,10 +54,24 @@ interface PendingPro {
   };
 }
 
+interface PendingModerator {
+  user_id: string;
+  role: string;
+  created_at: string | null;
+  profiles: {
+    first_name: string;
+    last_name: string;
+    username: string;
+    avatar_url: string | null;
+    email: string;
+  };
+}
+
 function AdminApprovalsContent() {
   const { toast } = useToast();
   const [pendingTrainers, setPendingTrainers] = useState<PendingTrainer[]>([]);
   const [pendingPros, setPendingPros] = useState<PendingPro[]>([]);
+  const [pendingModerators, setPendingModerators] = useState<PendingModerator[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -125,8 +139,38 @@ function AdminApprovalsContent() {
         }
       })) || [];
 
+      // Fetch pending moderators (users with MODERATOR role but not yet approved)
+      const { data: moderatorRoles, error: moderatorsError } = await supabase
+        .from('user_roles')
+        .select('user_id, role, id')
+        .eq('role', 'MODERATOR')
+        .order('id', { ascending: false });
+
+      if (moderatorsError) throw moderatorsError;
+
+      // Fetch profiles for moderators
+      const moderatorUserIds = moderatorRoles?.map(m => m.user_id) || [];
+      const { data: moderatorProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', moderatorUserIds);
+
+      const moderatorsWithProfiles = moderatorRoles?.map(mod => ({
+        user_id: mod.user_id,
+        role: mod.role,
+        created_at: null,
+        profiles: moderatorProfiles?.find(p => p.id === mod.user_id) || {
+          first_name: '',
+          last_name: '',
+          username: '',
+          avatar_url: null,
+          email: ''
+        }
+      })) || [];
+
       setPendingTrainers(trainersWithProfiles);
       setPendingPros(prosWithProfiles);
+      setPendingModerators(moderatorsWithProfiles);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -344,7 +388,100 @@ function AdminApprovalsContent() {
     }
   };
 
-  const viewDetails = (item: any, type: 'trainer' | 'pro') => {
+  const handleApproveModerator = async (userId: string) => {
+    try {
+      setActionLoading(`moderator-${userId}`);
+
+      // Get moderator details for email
+      const moderator = pendingModerators.find(m => m.user_id === userId);
+      if (!moderator) throw new Error("Moderator not found");
+
+      // Note: Moderator role already exists, just notify them
+      // In a more complete implementation, you might want to add an is_approved flag
+
+      // Send approval email
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: moderator.profiles.email,
+            name: `${moderator.profiles.first_name} ${moderator.profiles.last_name}`,
+            type: 'moderator',
+            status: 'approved'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send approval email:', emailError);
+        // Don't fail the approval if email fails
+      }
+
+      toast({
+        title: "Moderator Approved",
+        description: "The moderator has been activated and notified via email",
+      });
+
+      fetchPendingApprovals();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to approve moderator",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectModerator = async (userId: string) => {
+    try {
+      setActionLoading(`moderator-reject-${userId}`);
+
+      // Get moderator details for email
+      const moderator = pendingModerators.find(m => m.user_id === userId);
+      if (!moderator) throw new Error("Moderator not found");
+
+      // Send rejection email before deleting
+      try {
+        await supabase.functions.invoke('send-approval-email', {
+          body: {
+            email: moderator.profiles.email,
+            name: `${moderator.profiles.first_name} ${moderator.profiles.last_name}`,
+            type: 'moderator',
+            status: 'rejected',
+            reason: 'Thank you for your interest in becoming a moderator. After careful review, we have determined that your application does not meet our current requirements. You are welcome to reapply in the future.'
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send rejection email:', emailError);
+        // Continue with deletion even if email fails
+      }
+
+      // Remove moderator role
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', 'MODERATOR');
+
+      if (error) throw error;
+
+      toast({
+        title: "Moderator Rejected",
+        description: "The application has been rejected and the applicant has been notified",
+      });
+
+      fetchPendingApprovals();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reject moderator",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const viewDetails = (item: any, type: 'trainer' | 'pro' | 'moderator') => {
     setSelectedItem({ ...item, type });
     setDetailsOpen(true);
   };
@@ -368,11 +505,11 @@ function AdminApprovalsContent() {
             </div>
             <h1 className="text-4xl font-bold text-foreground neon-text">User Approvals</h1>
           </div>
-          <p className="text-muted-foreground">Review and approve pending trainer and pro player applications</p>
+          <p className="text-muted-foreground">Review and approve pending trainer, pro player, and moderator applications</p>
         </div>
 
         <Tabs defaultValue="trainers" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="trainers" className="gap-2">
               <GraduationCap className="h-4 w-4" />
               Trainers ({pendingTrainers.length})
@@ -380,6 +517,10 @@ function AdminApprovalsContent() {
             <TabsTrigger value="pros" className="gap-2">
               <Trophy className="h-4 w-4" />
               Pro Players ({pendingPros.length})
+            </TabsTrigger>
+            <TabsTrigger value="moderators" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Moderators ({pendingModerators.length})
             </TabsTrigger>
           </TabsList>
 
@@ -538,6 +679,86 @@ function AdminApprovalsContent() {
                           disabled={actionLoading === `pro-reject-${pro.id}`}
                         >
                           {actionLoading === `pro-reject-${pro.id}` ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <XCircle className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Pending Moderators */}
+          <TabsContent value="moderators" className="space-y-4">
+            {pendingModerators.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No pending moderator applications</p>
+                </CardContent>
+              </Card>
+            ) : (
+              pendingModerators.map((moderator) => (
+                <Card key={moderator.user_id} className="border-primary/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4 flex-1">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={moderator.profiles?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {moderator.profiles?.first_name?.[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 space-y-2">
+                          <div>
+                            <h3 className="font-semibold text-lg text-foreground">
+                              {moderator.profiles?.first_name} {moderator.profiles?.last_name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">@{moderator.profiles?.username}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="gap-1">
+                              <Shield className="h-3 w-3" />
+                              Moderator
+                            </Badge>
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Email</Label>
+                            <p className="text-sm text-foreground">{moderator.profiles?.email}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => viewDetails(moderator, 'moderator')}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => handleApproveModerator(moderator.user_id)}
+                          disabled={actionLoading === `moderator-${moderator.user_id}`}
+                        >
+                          {actionLoading === `moderator-${moderator.user_id}` ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleRejectModerator(moderator.user_id)}
+                          disabled={actionLoading === `moderator-reject-${moderator.user_id}`}
+                        >
+                          {actionLoading === `moderator-reject-${moderator.user_id}` ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <XCircle className="h-4 w-4" />

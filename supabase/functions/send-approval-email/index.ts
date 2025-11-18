@@ -10,7 +10,7 @@ const corsHeaders = {
 interface ApprovalEmailRequest {
   email: string;
   name: string;
-  type: 'trainer' | 'pro';
+  type: 'trainer' | 'pro' | 'moderator';
   status: 'approved' | 'rejected';
   reason?: string;
 }
@@ -27,13 +27,47 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Sending ${status} email to ${email} for ${type} application`);
 
     const isApproved = status === 'approved';
-    const userType = type === 'trainer' ? 'Trainer' : 'Pro Player';
+    const userType = type === 'trainer' ? 'Trainer' : type === 'pro' ? 'Pro Player' : 'Moderator';
     
     let subject: string;
     let htmlContent: string;
 
     if (isApproved) {
       subject = `🎉 Your ${userType} Application Has Been Approved!`;
+      
+      const approvalMessages = {
+        trainer: {
+          welcome: 'You can now start creating training sessions and helping players improve their skills.',
+          features: `
+            <li>Create and manage training sessions</li>
+            <li>Set your own hourly rates</li>
+            <li>Build your reputation with reviews</li>
+            <li>Access the trainer dashboard</li>
+          `
+        },
+        pro: {
+          welcome: 'You are now recognized as a professional player in our academy.',
+          features: `
+            <li>Access exclusive pro player features</li>
+            <li>Connect with potential teams and sponsors</li>
+            <li>Showcase your achievements</li>
+            <li>Access the pro dashboard</li>
+          `
+        },
+        moderator: {
+          welcome: 'You can now help manage the LevelUp Academy community.',
+          features: `
+            <li>Review and approve pro player applications</li>
+            <li>Moderate contracts and agreements</li>
+            <li>Review user feedback and reports</li>
+            <li>Access the moderator dashboard</li>
+          `
+        }
+      };
+
+      const typeKey = type as 'trainer' | 'pro' | 'moderator';
+      const messages = approvalMessages[typeKey];
+
       htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -64,19 +98,12 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 0;"><strong>Your account is now active!</strong></p>
                 </div>
 
+                <p>${messages.welcome}</p>
+
                 <p><strong>What's Next?</strong></p>
                 <ul>
-                  ${type === 'trainer' ? `
-                    <li>Log in to your trainer dashboard to set up your availability</li>
-                    <li>Create your first training sessions</li>
-                    <li>Start connecting with students eager to learn</li>
-                    <li>Join our Discord community: <a href="https://discord.gg/3NzXWzy4" style="color: #667eea;">https://discord.gg/3NzXWzy4</a></li>
-                  ` : `
-                    <li>Access your pro player dashboard</li>
-                    <li>View and apply for club offers</li>
-                    <li>Connect with other professional players</li>
-                    <li>Join our Discord community: <a href="https://discord.gg/3NzXWzy4" style="color: #667eea;">https://discord.gg/3NzXWzy4</a></li>
-                  `}
+                  ${messages.features}
+                  <li>Join our Discord community: <a href="https://discord.gg/3NzXWzy4" style="color: #667eea;">https://discord.gg/3NzXWzy4</a></li>
                 </ul>
 
                 <div style="text-align: center; margin: 30px 0;">
