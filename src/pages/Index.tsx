@@ -7,6 +7,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ScrollProgressBar from "@/components/ScrollProgressBar";
 import CursorTrail from "@/components/CursorTrail";
 import SkillsShowcase from "@/components/SkillsShowcase";
+import AchievementsSection from "@/components/AchievementsSection";
 
 const Index = () => {
   return (
@@ -17,6 +18,7 @@ const Index = () => {
       <Hero />
       <UserTypeSection />
       <SkillsShowcase />
+      <AchievementsSection />
       <ClubOfferSection />
       <Footer />
       <ScrollToTop />
