@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, XCircle, Eye, Loader2, UserCheck, Crown, GraduationCap, Trophy, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Eye, Loader2, UserCheck, Crown, GraduationCap, Trophy, Shield, Users } from "lucide-react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -67,11 +67,53 @@ interface PendingModerator {
   };
 }
 
+interface PendingPlayer {
+  id: number;
+  user_id: string;
+  gaming_username: string | null;
+  city: string | null;
+  experience_level: string | null;
+  created_at: string | null;
+  profiles: {
+    first_name: string;
+    last_name: string;
+    username: string;
+    avatar_url: string | null;
+    email: string;
+  };
+  payment?: {
+    amount: number;
+    transaction_id: string | null;
+    created_at: string;
+  };
+}
+
+interface PendingParent {
+  id: number;
+  user_id: string;
+  phone_number: string | null;
+  created_at: string | null;
+  profiles: {
+    first_name: string;
+    last_name: string;
+    username: string;
+    avatar_url: string | null;
+    email: string;
+  };
+  payment?: {
+    amount: number;
+    transaction_id: string | null;
+    created_at: string;
+  };
+}
+
 function AdminApprovalsContent() {
   const { toast } = useToast();
   const [pendingTrainers, setPendingTrainers] = useState<PendingTrainer[]>([]);
   const [pendingPros, setPendingPros] = useState<PendingPro[]>([]);
   const [pendingModerators, setPendingModerators] = useState<PendingModerator[]>([]);
+  const [pendingPlayers, setPendingPlayers] = useState<PendingPlayer[]>([]);
+  const [pendingParents, setPendingParents] = useState<PendingParent[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -168,9 +210,102 @@ function AdminApprovalsContent() {
         }
       })) || [];
 
+      // Fetch pending players (with pending payments - players who completed payment but not yet activated)
+      // Check for players who have payment records but no activated flag
+      const { data: playersData, error: playersError } = await supabase
+        .from('players')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (playersError) throw playersError;
+
+      // Fetch profiles for players
+      const playerUserIds = playersData?.map(p => p.user_id) || [];
+      const { data: playerProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', playerUserIds);
+
+      // Fetch payments for players to check if they have pending payments
+      const { data: playerPayments } = await supabase
+        .from('payments')
+        .select('user_id, amount, transaction_id, created_at, status')
+        .in('user_id', playerUserIds)
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false });
+
+      const playersWithProfiles = playersData
+        ?.map(player => {
+          const profile = playerProfiles?.find(p => p.id === player.user_id);
+          const payment = playerPayments?.find(p => p.user_id === player.user_id);
+          return {
+            ...player,
+            profiles: profile || {
+              first_name: '',
+              last_name: '',
+              username: '',
+              avatar_url: null,
+              email: ''
+            },
+            payment: payment ? {
+              amount: payment.amount,
+              transaction_id: payment.transaction_id,
+              created_at: payment.created_at
+            } : undefined
+          };
+        })
+        .filter(p => p.payment) || []; // Only show players with pending payments
+
+      // Fetch pending parents (with pending payments)
+      const { data: parentsData, error: parentsError } = await supabase
+        .from('parents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (parentsError) throw parentsError;
+
+      // Fetch profiles for parents
+      const parentUserIds = parentsData?.map(p => p.user_id) || [];
+      const { data: parentProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', parentUserIds);
+
+      // Fetch payments for parents
+      const { data: parentPayments } = await supabase
+        .from('payments')
+        .select('user_id, amount, transaction_id, created_at, status')
+        .in('user_id', parentUserIds)
+        .eq('status', 'PENDING')
+        .order('created_at', { ascending: false });
+
+      const parentsWithProfiles = parentsData
+        ?.map(parent => {
+          const profile = parentProfiles?.find(p => p.id === parent.user_id);
+          const payment = parentPayments?.find(p => p.user_id === parent.user_id);
+          return {
+            ...parent,
+            profiles: profile || {
+              first_name: '',
+              last_name: '',
+              username: '',
+              avatar_url: null,
+              email: ''
+            },
+            payment: payment ? {
+              amount: payment.amount,
+              transaction_id: payment.transaction_id,
+              created_at: payment.created_at
+            } : undefined
+          };
+        })
+        .filter(p => p.payment) || []; // Only show parents with pending payments
+
       setPendingTrainers(trainersWithProfiles);
       setPendingPros(prosWithProfiles);
       setPendingModerators(moderatorsWithProfiles);
+      setPendingPlayers(playersWithProfiles);
+      setPendingParents(parentsWithProfiles);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -481,7 +616,87 @@ function AdminApprovalsContent() {
     }
   };
 
-  const viewDetails = (item: any, type: 'trainer' | 'pro' | 'moderator') => {
+  const handleActivatePlayer = async (playerId: number, userId: string, paymentAmount: number) => {
+    try {
+      setActionLoading(`player-${playerId}`);
+
+      const player = pendingPlayers.find(p => p.id === playerId);
+      if (!player) throw new Error("Player not found");
+
+      // Update payment status to SUCCESS
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .update({ status: 'SUCCESS' })
+        .eq('user_id', userId)
+        .eq('status', 'PENDING');
+
+      if (paymentError) throw paymentError;
+
+      // Add PLAYER role if not exists
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role: 'PLAYER' });
+
+      if (roleError && !roleError.message.includes('duplicate')) throw roleError;
+
+      toast({
+        title: "Player Activated",
+        description: "The player account has been activated and can now book sessions",
+      });
+
+      fetchPendingApprovals();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to activate player",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleActivateParent = async (parentId: number, userId: string, paymentAmount: number) => {
+    try {
+      setActionLoading(`parent-${parentId}`);
+
+      const parent = pendingParents.find(p => p.id === parentId);
+      if (!parent) throw new Error("Parent not found");
+
+      // Update payment status to SUCCESS
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .update({ status: 'SUCCESS' })
+        .eq('user_id', userId)
+        .eq('status', 'PENDING');
+
+      if (paymentError) throw paymentError;
+
+      // Add PARENTS role if not exists
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role: 'PARENTS' });
+
+      if (roleError && !roleError.message.includes('duplicate')) throw roleError;
+
+      toast({
+        title: "Parent Activated",
+        description: "The parent account has been activated and can now book sessions for their children",
+      });
+
+      fetchPendingApprovals();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to activate parent",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const viewDetails = (item: any, type: 'trainer' | 'pro' | 'moderator' | 'player' | 'parent') => {
     setSelectedItem({ ...item, type });
     setDetailsOpen(true);
   };
@@ -509,7 +724,7 @@ function AdminApprovalsContent() {
         </div>
 
         <Tabs defaultValue="trainers" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
+          <TabsList className="grid w-full max-w-3xl grid-cols-4">
             <TabsTrigger value="trainers" className="gap-2">
               <GraduationCap className="h-4 w-4" />
               Trainers ({pendingTrainers.length})
@@ -521,6 +736,10 @@ function AdminApprovalsContent() {
             <TabsTrigger value="moderators" className="gap-2">
               <Shield className="h-4 w-4" />
               Moderators ({pendingModerators.length})
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="gap-2">
+              <Users className="h-4 w-4" />
+              Payment Verification ({pendingPlayers.length + pendingParents.length})
             </TabsTrigger>
           </TabsList>
 
@@ -769,6 +988,187 @@ function AdminApprovalsContent() {
                   </CardContent>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          {/* Pending Payment Verifications (Players & Parents) */}
+          <TabsContent value="payments" className="space-y-4">
+            {pendingPlayers.length === 0 && pendingParents.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <UserCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No pending payment verifications</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                {/* Pending Players */}
+                {pendingPlayers.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Players Awaiting Activation ({pendingPlayers.length})
+                    </h3>
+                    {pendingPlayers.map((player) => (
+                      <Card key={player.id} className="border-yellow-500/20 bg-yellow-500/5">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4 flex-1">
+                              <Avatar className="h-12 w-12">
+                                <AvatarImage src={player.profiles?.avatar_url || undefined} />
+                                <AvatarFallback className="bg-primary text-primary-foreground">
+                                  {player.profiles?.first_name?.[0]?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 space-y-2">
+                                <div>
+                                  <h3 className="font-semibold text-lg text-foreground">
+                                    {player.profiles?.first_name} {player.profiles?.last_name}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">
+                                    @{player.gaming_username || player.profiles?.username}
+                                  </p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                                    Payment Pending Verification
+                                  </Badge>
+                                  {player.experience_level && (
+                                    <Badge variant="secondary">{player.experience_level}</Badge>
+                                  )}
+                                  {player.city && (
+                                    <Badge variant="secondary">{player.city}</Badge>
+                                  )}
+                                </div>
+                                {player.payment && (
+                                  <div className="bg-background/50 rounded-lg p-3 space-y-1">
+                                    <p className="text-sm">
+                                      <span className="font-medium">Amount:</span> {player.payment.amount} SAR
+                                    </p>
+                                    {player.payment.transaction_id && (
+                                      <p className="text-sm">
+                                        <span className="font-medium">Transaction ID:</span>{' '}
+                                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                                          {player.payment.transaction_id}
+                                        </code>
+                                      </p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                      Payment Date: {new Date(player.payment.created_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => viewDetails(player, 'player')}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleActivatePlayer(player.id, player.user_id, player.payment?.amount || 0)}
+                                disabled={actionLoading === `player-${player.id}`}
+                              >
+                                {actionLoading === `player-${player.id}` ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Pending Parents */}
+                {pendingParents.length > 0 && (
+                  <div className="space-y-4 mt-6">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Parents Awaiting Activation ({pendingParents.length})
+                    </h3>
+                    {pendingParents.map((parent) => (
+                      <Card key={parent.id} className="border-yellow-500/20 bg-yellow-500/5">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4 flex-1">
+                              <Avatar className="h-12 w-12">
+                                <AvatarImage src={parent.profiles?.avatar_url || undefined} />
+                                <AvatarFallback className="bg-primary text-primary-foreground">
+                                  {parent.profiles?.first_name?.[0]?.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 space-y-2">
+                                <div>
+                                  <h3 className="font-semibold text-lg text-foreground">
+                                    {parent.profiles?.first_name} {parent.profiles?.last_name}
+                                  </h3>
+                                  <p className="text-sm text-muted-foreground">@{parent.profiles?.username}</p>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                                    Payment Pending Verification
+                                  </Badge>
+                                  {parent.phone_number && (
+                                    <Badge variant="secondary">{parent.phone_number}</Badge>
+                                  )}
+                                </div>
+                                {parent.payment && (
+                                  <div className="bg-background/50 rounded-lg p-3 space-y-1">
+                                    <p className="text-sm">
+                                      <span className="font-medium">Amount:</span> {parent.payment.amount} SAR
+                                    </p>
+                                    {parent.payment.transaction_id && (
+                                      <p className="text-sm">
+                                        <span className="font-medium">Transaction ID:</span>{' '}
+                                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                                          {parent.payment.transaction_id}
+                                        </code>
+                                      </p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                      Payment Date: {new Date(parent.payment.created_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => viewDetails(parent, 'parent')}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleActivateParent(parent.id, parent.user_id, parent.payment?.amount || 0)}
+                                disabled={actionLoading === `parent-${parent.id}`}
+                              >
+                                {actionLoading === `parent-${parent.id}` ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
