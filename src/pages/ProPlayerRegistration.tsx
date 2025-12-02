@@ -68,20 +68,23 @@ const ProPlayerRegistration = () => {
     }
   };
 
-  const uploadFile = async (file: File, path: string): Promise<string | null> => {
+  const uploadFile = async (file: File, bucket: string): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${path}/${fileName}`;
+      const fileName = `${Date.now()}_${Math.random()}.${fileExt}`;
+      const filePath = fileName;
 
-      const { error: uploadError, data } = await supabase.storage
-        .from('avatars')
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
+        .from(bucket)
         .getPublicUrl(filePath);
 
       return publicUrl;
@@ -164,16 +167,16 @@ const ProPlayerRegistration = () => {
 
       const userId = authData.user.id;
 
-      // 2. Upload files
+      // 2. Upload files to pro-requirements bucket
       const requirementsUrl = await uploadFile(requirementsPdf, 'pro-requirements');
-      const cvUrl = cvFile ? await uploadFile(cvFile, 'pro-cvs') : null;
+      const cvUrl = cvFile ? await uploadFile(cvFile, 'pro-requirements') : null;
 
       if (!requirementsUrl) {
         throw new Error('Failed to upload requirements document');
       }
 
-      // 3. Create pro player record
-      const { error } = await supabase
+      // 3. Create pro player record (unapproved by default)
+      const { error: proError } = await supabase
         .from('pros')
         .insert({
           user_id: userId,
@@ -187,9 +190,25 @@ const ProPlayerRegistration = () => {
           is_approved: false,
         });
 
-      if (error) throw error;
+      if (proError) {
+        console.error('Pro creation error:', proError);
+        throw proError;
+      }
 
-      // 4. Send application received confirmation email
+      // 4. Add PRO role to user_roles table
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: userId,
+          role: 'PRO'
+        });
+
+      if (roleError) {
+        console.error('Role assignment error:', roleError);
+        // Don't throw - continue with submission
+      }
+
+      // 5. Send application received confirmation email
       try {
         await supabase.functions.invoke('notify-pro-application-status', {
           body: {
@@ -202,14 +221,16 @@ const ProPlayerRegistration = () => {
         });
       } catch (emailError) {
         console.error('Confirmation email error:', emailError);
+        // Continue even if email fails
       }
 
-      toast.success('Application submitted successfully! Check your email for confirmation.');
+      toast.success('Application submitted! You will be notified once approved.');
       
-      // Sign out the newly created user
+      // 6. Sign out the newly created user to prevent login before approval
       await supabase.auth.signOut();
       
-      navigate('/pro-pending');
+      // 7. Redirect to pending page with game info
+      navigate('/pro-pending', { state: { selectedGame: selectedGame.name } });
     } catch (error: any) {
       console.error('Submission error:', error);
       
