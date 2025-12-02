@@ -46,6 +46,8 @@ import AdminApprovals from "./pages/AdminApprovals";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import PendingActivation from "./pages/PendingActivation";
+import SupportTicket from "./pages/SupportTicket";
 import EditChild from "./pages/EditChild";
 import NotificationHistory from "./pages/NotificationHistory";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -91,6 +93,8 @@ const App = () => (
           <Route path="/sessions/:id" element={<SessionDetail />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/pending-activation" element={<PendingActivation />} />
+          <Route path="/support-ticket" element={<SupportTicket />} />
           <Route
             path="/trainer-dashboard"
             element={

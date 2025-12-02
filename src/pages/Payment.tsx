@@ -238,8 +238,8 @@ export default function Payment() {
                     // Generate a mock transaction ID
                     const transactionId = `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`;
                     
-                    // Navigate to payment success with query parameters
-                    navigate(`/payment-success?payment_id=${transactionId}&amount=${orderSummary.total}&session=${encodeURIComponent(orderSummary.package)}&transaction_id=${transactionId}`);
+                    // Navigate to pending activation page after payment
+                    navigate(`/pending-activation?payment_id=${transactionId}&amount=${orderSummary.total}&session=${encodeURIComponent(orderSummary.package)}&transaction_id=${transactionId}`);
                   }}
                 >
                   Complete Payment

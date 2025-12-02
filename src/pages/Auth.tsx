@@ -37,12 +37,66 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email: loginData.email,
         password: loginData.password,
       });
 
       if (error) throw error;
+
+      // Check if user has PRO or TRAINER role and verify approval status
+      if (data.user) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id);
+
+        if (roles && roles.length > 0) {
+          const userRoles = roles.map(r => r.role);
+          
+          // Check if user is a PRO player and verify approval
+          if (userRoles.includes('PRO')) {
+            const { data: proData } = await supabase
+              .from('pros')
+              .select('is_approved')
+              .eq('user_id', data.user.id)
+              .maybeSingle();
+
+            if (proData && !proData.is_approved) {
+              // Sign out the unapproved user
+              await supabase.auth.signOut();
+              toast({
+                title: 'Account Pending Approval',
+                description: 'Your pro player account is awaiting admin approval. You\'ll receive an email once activated.',
+                variant: 'destructive',
+              });
+              navigate('/pro-pending');
+              return;
+            }
+          }
+
+          // Check if user is a TRAINER and verify approval
+          if (userRoles.includes('TRAINER')) {
+            const { data: trainerData } = await supabase
+              .from('trainers')
+              .select('is_approved')
+              .eq('user_id', data.user.id)
+              .maybeSingle();
+
+            if (trainerData && !trainerData.is_approved) {
+              // Sign out the unapproved user
+              await supabase.auth.signOut();
+              toast({
+                title: 'Account Pending Approval',
+                description: 'Your trainer account is awaiting admin approval. You\'ll receive an email once activated.',
+                variant: 'destructive',
+              });
+              navigate('/trainer-pending');
+              return;
+            }
+          }
+        }
+      }
 
       toast({
         title: 'Login successful',
